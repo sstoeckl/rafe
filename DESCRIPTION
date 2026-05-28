@@ -1,0 +1,36 @@
+Package: rafe
+Type: Package
+Title: Decision-Aligned Forecast Evaluation and Moment Correction
+Version: 0.0.0.9000
+Authors@R: c(
+    person("Sebastian", "Stöckl", email = "sebastian.stoeckl@uni.li",
+           role = c("aut", "cre")),
+    person("Tobias", "Salcher", role = "aut"),
+    person("Michael", "Hanke", role = "aut")
+    )
+Description: Computes risk-adjusted forecast errors (RAFE), covariance
+    forecast errors (C-RAFE), and the combined upper bound on the Sharpe-
+    ratio gap (T-RAFE) of plug-in mean-variance portfolios, as introduced
+    in Salcher, Stoeckl & Hanke (2026, Journal of Forecasting). Also
+    provides decision-aligned moment-correction estimators (Stein-style
+    mean shrinkage in the risk-whitened space and eigenvalue-floor
+    covariance cleaning) and training-loss objectives for XGBoost and
+    torch, as developed in the RAFE Program of papers.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.0
+Imports:
+    stats,
+    Matrix
+Suggests:
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown,
+    xgboost,
+    torch
+URL: https://github.com/sstoeckl/rafe
+BugReports: https://github.com/sstoeckl/rafe/issues
+VignetteBuilder: knitr
+Config/testthat/edition: 3

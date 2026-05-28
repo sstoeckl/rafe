@@ -1,0 +1,43 @@
+---
+title: "rafe — Getting Started"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{rafe — Getting Started}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+> A 5-minute tour of the `rafe` package: metrics, post-processing
+> estimators, training-loss objectives. (Stub — to be expanded once the
+> package API is implemented.)
+
+# What is RAFE?
+
+(TODO) Brief recap of the Sharpe-gap bound from Salcher, Stöckl & Hanke (2026,
+*Journal of Forecasting*): $\Delta \le c \cdot \mathrm{RAFE} + SR^{\ast} \cdot
+\mathrm{C\text{-}RAFE}$. RAFE is a Mahalanobis-type mean error; C-RAFE is an
+operator-norm covariance error; their sum is T-RAFE.
+
+# Metrics
+
+(TODO) Example of `compute_rafe()`, `compute_crafe()`, `compute_trafe()` on a
+toy two-asset universe.
+
+# Post-processing your forecasts
+
+(TODO) `mu_rafe_stein()`, `sigma_crafe_floor()`, `joint_trafe_tune()`,
+`sep_tune()` — when you have $(\hat\mu, \hat\Sigma)$ from an external
+forecaster and want to correct them under the bound.
+
+# Training a decision-aware forecaster
+
+(TODO) `xgb_trafe_objective()` — when you train your forecaster from scratch
+on non-return predictors (macro variables, characteristics, sentiment) and
+want the loss to align with the portfolio decision.
