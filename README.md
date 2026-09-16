@@ -37,17 +37,17 @@ mu     <- colMeans(eval);  Sigma     <- cov(eval)
 
 # Metrics
 compute_rafe(mu_hat, mu, Sigma = Sigma)
-compute_crafe(Sigma_hat, Sigma)
+compute_crafe(Sigma, Sigma_hat)
 
 # The bound, with its decomposition attached as attributes
-bound <- compute_trafe(mu_hat, mu, Sigma_hat, Sigma)
+bound <- compute_trafe(mu_hat, mu, Sigma, Sigma_hat)
 unlist(attributes(bound))
 
 # Post-processing: tune (kappa, tau) on an inner-validation split
 fit <- sep_tune(train)
 c(kappa = fit$kappa, tau = fit$tau_rel)
 
-compute_crafe(fit$Sigma_tilde, Sigma)   # lower than the uncorrected value
+compute_crafe(Sigma, fit$Sigma_tilde)   # lower than the uncorrected value
 
 # Or apply a correction directly
 mu_rafe_stein(mu_hat, Sigma_hat, T_obs = 60)   # James-Stein intensity

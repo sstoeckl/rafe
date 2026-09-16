@@ -52,8 +52,8 @@ test_that("compute_crafe is invariant to common rescaling of both arguments", {
   S     <- crossprod(matrix(rnorm(25), 5)) / 5 + diag(0.1, 5)
   S_hat <- crossprod(matrix(rnorm(25), 5)) / 5 + diag(0.1, 5)
   expect_equal(
-    compute_crafe(S_hat, S),
-    compute_crafe(7 * S_hat, 7 * S),
+    compute_crafe(S, S_hat),
+    compute_crafe(7 * S, 7 * S_hat),
     tolerance = 1e-10
   )
 })
@@ -65,7 +65,7 @@ test_that("compute_crafe matches the operator-norm definition directly", {
   eg   <- eigen(S, symmetric = TRUE)
   Ssq  <- eg$vectors %*% diag(sqrt(eg$values)) %*% t(eg$vectors)
   M    <- Ssq %*% solve(S_hat) %*% Ssq - diag(4)
-  expect_equal(compute_crafe(S_hat, S), max(svd(M)$d), tolerance = 1e-10)
+  expect_equal(compute_crafe(S, S_hat), max(svd(M)$d), tolerance = 1e-10)
 })
 
 test_that("compute_trafe applies the theorem's data-dependent c", {
@@ -96,7 +96,7 @@ test_that("compute_trafe decomposes into its reported components", {
   mu     <- rnorm(n) / 20
   mu_hat <- mu + rnorm(n, sd = 0.01)
 
-  tr <- compute_trafe(mu_hat, mu, S_hat, S)
+  tr <- compute_trafe(mu_hat, mu, S, S_hat)
   expect_equal(
     as.numeric(tr),
     attr(tr, "c") * attr(tr, "rafe") + attr(tr, "SR_star") * attr(tr, "crafe"),
@@ -104,7 +104,7 @@ test_that("compute_trafe decomposes into its reported components", {
   )
   expect_equal(attr(tr, "rafe"),  compute_rafe(mu_hat, mu, Sigma = S),
                tolerance = 1e-10)
-  expect_equal(attr(tr, "crafe"), compute_crafe(S_hat, S), tolerance = 1e-10)
+  expect_equal(attr(tr, "crafe"), compute_crafe(S, S_hat), tolerance = 1e-10)
   expect_equal(attr(tr, "SR_star"),
                sqrt(drop(t(mu) %*% solve(S) %*% mu)), tolerance = 1e-10)
 })

@@ -121,9 +121,9 @@ test_that("a larger floor cannot increase C-RAFE distortion of a noisy spectrum"
   Sigma <- diag(n)
   R <- matrix(rnorm(12 * n), 12, n)   # T barely above N: very noisy spectrum
   S_hat <- stats::cov(R)
-  base <- compute_crafe(S_hat, Sigma)
+  base <- compute_crafe(Sigma, S_hat)
   best <- min(vapply(seq(0, 1, by = 0.05),
-                     function(t) compute_crafe(sigma_crafe_floor(S_hat, t), Sigma),
+                     function(t) compute_crafe(Sigma, sigma_crafe_floor(S_hat, t)),
                      numeric(1)))
   expect_lt(best, base)
 })

@@ -125,8 +125,8 @@ channels <- do.call(rbind, lapply(starts, function(s) {
   data.frame(
     rafe_raw  = compute_rafe(colMeans(tr), mu, Sigma = Sigma),
     rafe_cor  = compute_rafe(fit$mu_tilde, mu, Sigma = Sigma),
-    crafe_raw = compute_crafe(stats::cov(tr), Sigma),
-    crafe_cor = compute_crafe(fit$Sigma_tilde, Sigma)
+    crafe_raw = compute_crafe(Sigma, stats::cov(tr)),
+    crafe_cor = compute_crafe(Sigma, fit$Sigma_tilde)
   )
 }))
 

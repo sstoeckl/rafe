@@ -4,12 +4,12 @@
 \alias{compute_crafe}
 \title{Covariance Forecast Error (C-RAFE)}
 \usage{
-compute_crafe(Sigma_hat, Sigma)
+compute_crafe(Sigma, Sigma_hat)
 }
 \arguments{
-\item{Sigma_hat}{Forecast covariance matrix.}
-
 \item{Sigma}{Realised covariance matrix.}
+
+\item{Sigma_hat}{Forecast covariance matrix.}
 }
 \value{
 A length-1 numeric.
@@ -22,10 +22,24 @@ Computes the operator-norm precision distortion
 The metric is zero if and only if \eqn{\hat\Sigma = \Sigma}, and is invariant
 to the common scaling of both arguments.
 }
+\section{Argument order}{
+
+The realised covariance comes \strong{first}, matching \code{compute_crafe()} in the
+replication code of Salcher, Stöckl & Hanke (2026) so that paper code runs
+unchanged against this package. The metric is not symmetric in its
+arguments, so the order matters.
+}
+
 \examples{
 Sigma <- diag(c(1, 2, 3))
 compute_crafe(Sigma, Sigma)          # exactly 0
-compute_crafe(2 * Sigma, Sigma)      # scale distortion
+compute_crafe(Sigma, 2 * Sigma)      # forecast covariance twice too large
+
+# Under the paper's lambda-contamination scheme, Sigma_hat = (1-lambda)^2 Sigma
+# and C-RAFE has a closed form:
+lambda <- 0.05
+c(computed  = compute_crafe(Sigma, (1 - lambda)^2 * Sigma),
+  closedform = abs(1 / (1 - lambda)^2 - 1))
 
 }
 \references{

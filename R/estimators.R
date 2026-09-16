@@ -222,7 +222,7 @@ sep_tune <- function(R_train,
   kappa_star <- kappa_grid[which.min(losses_kappa)]
 
   losses_tau <- vapply(tau_grid, function(t) {
-    compute_crafe(sigma_crafe_floor(m$Sigma_in, t), m$Sigma_val)
+    compute_crafe(m$Sigma_val, sigma_crafe_floor(m$Sigma_in, t))
   }, numeric(1))
   tau_star <- tau_grid[which.min(losses_tau)]
 
@@ -281,7 +281,7 @@ joint_trafe_tune <- function(R_train,
   for (i in seq_along(kappa_grid)) {
     for (j in seq_along(tau_grid)) {
       loss_grid[i, j] <- as.numeric(
-        compute_trafe(mu_by_kappa[[i]], m$mu_val, Sigma_by_tau[[j]], m$Sigma_val)
+        compute_trafe(mu_by_kappa[[i]], m$mu_val, m$Sigma_val, Sigma_by_tau[[j]])
       )
     }
   }

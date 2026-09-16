@@ -73,7 +73,7 @@ test_that("the Sharpe-gap bound holds in every Monte Carlo draw", {
     SR_star <- sqrt(drop(t(mu) %*% solve(Sigma) %*% mu))
     Delta   <- SR_star - plugin_sharpe(mu_hat, S_hat, mu, Sigma)
 
-    bound <- compute_trafe(mu_hat, mu, S_hat, Sigma)
+    bound <- compute_trafe(mu_hat, mu, Sigma, S_hat)
 
     # The gap is non-negative by construction: SR* maximises the Sharpe ratio.
     expect_gte(Delta, -1e-10)
@@ -96,7 +96,67 @@ test_that("both branches of the constant c are exercised by random draws", {
     Sigma <- rand_cov(n)
     mu    <- rnorm(n) * 0.05
     X     <- rmvn(60L, mu, Sigma)
-    attr(compute_trafe(colMeans(X), mu, stats::cov(X), Sigma), "c")
+    attr(compute_trafe(colMeans(X), mu, Sigma, stats::cov(X)), "c")
   })
   expect_true(all(cs %in% c(1, 2)))
+})
+
+# ---------------------------------------------------------------------------
+# Agreement with the Part 1 replication code
+# (github.com/sstoeckl/Lost_in_Translation_Replication, code/00_setup.R)
+# ---------------------------------------------------------------------------
+
+test_that("C-RAFE matches the closed form under lambda contamination", {
+  # The paper's design sets Sigma_hat = (1 - lambda)^2 * Sigma, for which
+  # compute_crafe_lambda(lambda) = |1/(1-lambda)^2 - 1| exactly.
+  set.seed(201)
+  for (n in c(2L, 5L, 12L)) {
+    Sigma <- crossprod(matrix(rnorm(n * n), n)) / n + diag(0.1, n)
+    for (lambda in c(0, 0.002, 0.01, 0.05, 0.1)) {
+      expect_equal(
+        compute_crafe(Sigma, (1 - lambda)^2 * Sigma),
+        abs(1 / (1 - lambda)^2 - 1),
+        tolerance = 1e-9,
+        info = paste("N =", n, "lambda =", lambda)
+      )
+    }
+  }
+})
+
+test_that("the metrics reproduce the replication code's own definitions", {
+  # Verbatim transcriptions of compute_rafe() and compute_crafe() from
+  # code/00_setup.R of the replication repository, called in that repo's
+  # argument order.
+  ref_rafe <- function(mu_hat, mu, Sigma) {
+    e_mu <- mu_hat - mu
+    sqrt(as.numeric(t(e_mu) %*% solve(Sigma) %*% e_mu))
+  }
+  ref_crafe <- function(Sigma, Sigma_hat) {
+    eig <- eigen(Sigma, symmetric = TRUE)
+    Sigma_sqrt <- eig$vectors %*% diag(sqrt(pmax(eig$values, 0))) %*% t(eig$vectors)
+    M <- Sigma_sqrt %*% solve(Sigma_hat) %*% Sigma_sqrt - diag(nrow(Sigma))
+    max(svd(M)$d)
+  }
+
+  set.seed(202)
+  for (i in 1:20) {
+    n <- sample(2:10, 1)
+    Sigma     <- crossprod(matrix(rnorm(n * n), n)) / n + diag(0.2, n)
+    Sigma_hat <- crossprod(matrix(rnorm(n * n), n)) / n + diag(0.2, n)
+    mu     <- rnorm(n) / 20
+    mu_hat <- rnorm(n) / 20
+
+    expect_equal(compute_rafe(mu_hat, mu, Sigma), ref_rafe(mu_hat, mu, Sigma),
+                 tolerance = 1e-9)
+    expect_equal(compute_crafe(Sigma, Sigma_hat), ref_crafe(Sigma, Sigma_hat),
+                 tolerance = 1e-9)
+
+    # The replication code's T-RAFE fixes c = 1 and takes |SR*|.
+    SR_star <- sqrt(drop(t(mu) %*% solve(Sigma) %*% mu))
+    expect_equal(
+      as.numeric(compute_trafe(mu_hat, mu, Sigma, Sigma_hat, c = 1)),
+      ref_rafe(mu_hat, mu, Sigma) + abs(SR_star) * ref_crafe(Sigma, Sigma_hat),
+      tolerance = 1e-9
+    )
+  }
 })

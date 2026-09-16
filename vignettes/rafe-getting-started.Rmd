@@ -47,7 +47,7 @@ mu_hat <- colMeans(train); Sigma_hat <- stats::cov(train)
 mu     <- colMeans(eval);  Sigma     <- stats::cov(eval)
 
 compute_rafe(mu_hat, mu, Sigma = Sigma)
-compute_crafe(Sigma_hat, Sigma)
+compute_crafe(Sigma, Sigma_hat)
 ```
 
 `compute_trafe()` combines them, applying the theorem's data-dependent constant
@@ -55,7 +55,7 @@ compute_crafe(Sigma_hat, Sigma)
 decomposition as attributes:
 
 ```{r}
-bound <- compute_trafe(mu_hat, mu, Sigma_hat, Sigma)
+bound <- compute_trafe(mu_hat, mu, Sigma, Sigma_hat)
 bound
 unlist(attributes(bound))
 ```
@@ -73,8 +73,8 @@ c(kappa = fit$kappa, tau = fit$tau_rel)
 
 c(rafe_before  = compute_rafe(mu_hat, mu, Sigma = Sigma),
   rafe_after   = compute_rafe(fit$mu_tilde, mu, Sigma = Sigma),
-  crafe_before = compute_crafe(Sigma_hat, Sigma),
-  crafe_after  = compute_crafe(fit$Sigma_tilde, Sigma))
+  crafe_before = compute_crafe(Sigma, Sigma_hat),
+  crafe_after  = compute_crafe(Sigma, fit$Sigma_tilde))
 ```
 
 ## Where to go next

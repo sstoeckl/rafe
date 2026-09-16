@@ -4,19 +4,23 @@
 \alias{compute_trafe}
 \title{Total RAFE (T-RAFE) — Sharpe-Gap Upper Bound}
 \usage{
-compute_trafe(mu_hat, mu, Sigma_hat, Sigma, c = NULL, SR_star = NULL)
+compute_trafe(mu_hat, mu, Sigma, Sigma_hat, c = NULL, SR_star = NULL)
 }
 \arguments{
 \item{mu_hat}{Numeric vector of forecast means.}
 
 \item{mu}{Numeric vector of realised means (same length as \code{mu_hat}).}
 
+\item{Sigma}{Realised covariance matrix. The argument order matches the
+paper's replication code, so \code{compute_rafe(mu_hat, mu, Sigma)} does the
+same thing here as it does there.}
+
 \item{Sigma_hat}{Forecast covariance matrix.}
 
-\item{Sigma}{Optional covariance matrix (used if \code{Sigma_inv} is \code{NULL}).}
-
 \item{c}{Scalar weighting for RAFE. If \code{NULL} (default), the theorem's rule
-is applied: 1 if \code{RAFE <= SR_star}, else 2.}
+is applied: 1 if \code{RAFE <= SR_star}, else 2. Note that the Part 1
+replication code computes \verb{RAFE + |SR*| * C-RAFE}, i.e. a fixed \code{c = 1};
+pass \code{c = 1} to reproduce those numbers exactly.}
 
 \item{SR_star}{Optional oracle Sharpe ratio. If \code{NULL}, computed as
 \eqn{\sqrt{\mu^\top \Sigma^{-1} \mu}} from \code{mu} and \code{Sigma_inv} (or
@@ -46,7 +50,7 @@ Sigma     <- diag(5)
 mu_hat    <- mu + rnorm(5, sd = 0.02)
 Sigma_hat <- Sigma + diag(5) * 0.05
 
-tr <- compute_trafe(mu_hat, mu, Sigma_hat, Sigma)
+tr <- compute_trafe(mu_hat, mu, Sigma, Sigma_hat)
 tr
 attributes(tr)[c("rafe", "crafe", "c", "SR_star")]
 

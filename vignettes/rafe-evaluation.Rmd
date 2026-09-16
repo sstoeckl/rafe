@@ -1,8 +1,8 @@
 ---
-title: "1. Evaluating forecasts: RAFE, C-RAFE and the Sharpe gap"
+title: "1. Evaluating forecasts: reproducing the Part 1 experiment"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{1. Evaluating forecasts: RAFE, C-RAFE and the Sharpe gap}
+  %\VignetteIndexEntry{1. Evaluating forecasts: reproducing the Part 1 experiment}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -15,188 +15,194 @@ options(digits = 4)
 
 ```{r}
 library(rafe)
+data(ff49)
 ```
 
-This vignette works through the evaluation example of Salcher, Stöckl & Hanke
-(2026, *Journal of Forecasting*) on the 12 Fama-French industry portfolios.
+This vignette follows the mean-variance experiment of Salcher, Stöckl & Hanke
+(2026, *Journal of Forecasting*), whose replication code lives at
+[github.com/sstoeckl/Lost_in_Translation_Replication](https://github.com/sstoeckl/Lost_in_Translation_Replication).
 
-The question the paper asks is simple. A forecaster hands you a mean vector
-$\hat\mu$ and a covariance $\hat\Sigma$. You feed them into a mean-variance
-optimiser. **How much Sharpe ratio do you lose because the forecasts were
-wrong?** The conventional answer — look at RMSE — turns out to be the wrong
-instrument, because RMSE does not know which errors the optimiser cares about.
+The design solves a problem that makes forecast evaluation hard: real
+forecasters do not come with a dial marked "accuracy". So the paper builds one.
 
-## The setup
+## Forecasts of known quality
 
-We roll a 60-month estimation window and a 60-month evaluation window across
-the sample, stepping a year at a time. On each window the estimated moments
-play the role of the *forecast* $(\hat\mu, \hat\Sigma)$ and the realised
-moments of the following window play the role of the *truth* $(\mu, \Sigma)$.
+Take the rolling 60-month mean as a baseline forecast, then blend in a sliver of
+the *realised* return:
+
+$$\hat\mu_t(\lambda) \;=\; (1 - \lambda)\,\bar r_{t-60:t-1} \;+\; \lambda\, r_t,
+\qquad \hat\Sigma_t(\lambda) \;=\; (1-\lambda)^2\,\hat\Sigma_t$$
+
+At $\lambda = 0$ there is no look-ahead. As $\lambda$ rises the forecast gets
+better in a controlled, measurable way. The covariance is scaled by
+$(1-\lambda)^2$ to keep the contamination internally consistent — and that
+choice has a useful side effect, which we check below.
 
 ```{r}
-data(ff12)
-R     <- as.matrix(ff12[, -1])
-dates <- ff12$date
-c(months = nrow(R), assets = ncol(R))
+R  <- as.matrix(ff49[, -1])
+nm <- colnames(R)
+h_wind     <- 60L
+lambda_vec <- seq(0, 0.1, by = 0.01)   # the paper's coarse grid
+no_samples <- c(10, 20, 30)
+n_draws    <- 10L                      # the paper uses 50; trimmed for runtime
+
+oos     <- (h_wind + 1L):nrow(R)
+roll_mu <- t(vapply(oos, function(t) colMeans(R[(t - h_wind):(t - 1L), ]),
+                    numeric(ncol(R))))
+roll_S  <- lapply(oos, function(t) stats::cov(R[(t - h_wind):(t - 1L), ]))
+c(industries = ncol(R), months = nrow(R), oos_months = length(oos))
 ```
 
-```{r}
-T_train <- 60L
-T_eval  <- 60L
-step    <- 12L
-starts  <- seq(1L, nrow(R) - T_train - T_eval + 1L, by = step)
+## C-RAFE has a closed form here
 
-# Sharpe ratio of the plug-in tangency portfolio, evaluated under the truth.
-plugin_sharpe <- function(mu_hat, S_hat, mu, Sigma) {
-  iSh <- solve(S_hat)
-  w   <- drop(iSh %*% mu_hat) / drop(t(mu_hat) %*% iSh %*% mu_hat)
-  drop(t(mu) %*% w) / sqrt(drop(t(w) %*% Sigma %*% w))
+Because $\hat\Sigma = (1-\lambda)^2\Sigma$ is a scalar multiple of the truth,
+the operator norm collapses analytically:
+
+$$\mathrm{C\text{-}RAFE}(\lambda) \;=\; \bigl\lVert \Sigma^{1/2}\,(1-\lambda)^{-2}\Sigma^{-1}\,\Sigma^{1/2} - I \bigr\rVert_2
+\;=\; \left|\tfrac{1}{(1-\lambda)^2} - 1\right|$$
+
+which is exactly `compute_crafe_lambda()` in the replication code. That makes a
+sharp check on the package's numerical implementation:
+
+```{r}
+Sigma_chk <- stats::cov(R[1:120, 1:8])
+chk <- vapply(lambda_vec, function(l)
+  compute_crafe(Sigma_chk, (1 - l)^2 * Sigma_chk), numeric(1))
+round(rbind(computed = chk,
+            closed_form = abs(1 / (1 - lambda_vec)^2 - 1)), 8)
+```
+
+Identical. Note the argument order: `compute_crafe()` takes the **realised**
+covariance first, matching the replication code so paper scripts run unchanged.
+
+## The experiment
+
+For each draw of $N$ industries we form the plug-in tangency portfolio at every
+out-of-sample month, exactly as the paper does, with weights budget-normalised
+to sum to one.
+
+One algebraic consequence of the $(1-\lambda)^2$ scaling is worth noticing:
+since $\hat\Sigma^{-1} = (1-\lambda)^{-2}\Sigma^{-1}$, the scalar cancels in
+$w = \hat\Sigma^{-1}\hat\mu / \mathbf{1}^\top\hat\Sigma^{-1}\hat\mu$. The
+covariance contamination therefore does not touch the weights at all — it acts
+purely through C-RAFE, while the realised portfolio responds only to the mean
+channel.
+
+```{r}
+set.seed(50)
+draws <- lapply(no_samples, function(k)
+  lapply(seq_len(n_draws), function(d) match(sample(nm, k), nm)))
+
+rows <- list(); z <- 0L
+for (si in seq_along(no_samples)) {
+  for (d in seq_len(n_draws)) {
+    idx  <- draws[[si]][[d]]
+    Rd   <- R[oos, idx, drop = FALSE]
+    rm_d <- roll_mu[, idx, drop = FALSE]
+    Sinv <- lapply(roll_S, function(S) solve(S[idx, idx, drop = FALSE]))
+
+    Sigma_d <- stats::cov(Rd)
+    mu_d    <- colMeans(Rd)
+    w_star  <- solve(Sigma_d) %*% mu_d
+    SR_star <- (sum(w_star * mu_d) / sum(w_star)) /
+      sqrt(drop(t(w_star) %*% Sigma_d %*% w_star) / sum(w_star)^2)
+
+    for (l in lambda_vec) {
+      FC <- rm_d * (1 - l) + Rd * l
+      pr <- vapply(seq_along(oos), function(i) {
+        wr <- drop(Sinv[[i]] %*% FC[i, ])
+        sum((wr / sum(wr)) * Rd[i, ])
+      }, numeric(1))
+      z <- z + 1L
+      rows[[z]] <- data.frame(
+        n_ind   = no_samples[si], draw = d, lambda = l,
+        sharpe  = mean(pr) / stats::sd(pr) * sqrt(12),
+        MSFE    = mean((Rd - FC)^2),
+        RAFE    = compute_rafe(colMeans(FC), mu_d, Sigma_d),
+        C_RAFE  = abs(1 / (1 - l)^2 - 1),
+        SR_star = SR_star
+      )
+    }
+  }
 }
+acc <- do.call(rbind, rows)
+acc$T_RAFE <- acc$RAFE + abs(acc$SR_star) * acc$C_RAFE
 
-panel <- do.call(rbind, lapply(starts, function(s) {
-  tr <- R[s:(s + T_train - 1L), ]
-  ev <- R[(s + T_train):(s + T_train + T_eval - 1L), ]
+agg <- aggregate(cbind(sharpe, MSFE, RAFE, C_RAFE, T_RAFE) ~ n_ind + lambda,
+                 acc, mean)
+round(agg[agg$n_ind == 30, ], 5)
+```
 
-  mu_hat <- colMeans(tr); S_hat <- stats::cov(tr)
-  mu     <- colMeans(ev); Sigma <- stats::cov(ev)
+## What the metrics say
 
-  bound   <- compute_trafe(mu_hat, mu, S_hat, Sigma)
-  SR_star <- attr(bound, "SR_star")
+Read that table by column. As $\lambda$ rises:
 
-  data.frame(
-    date    = dates[s + T_train],
-    rafe    = attr(bound, "rafe"),
-    crafe   = attr(bound, "crafe"),
-    trafe   = as.numeric(bound),
-    c_used  = attr(bound, "c"),
-    SR_star = SR_star,
-    SR_hat  = plugin_sharpe(mu_hat, S_hat, mu, Sigma),
-    rmse    = sqrt(mean((mu_hat - mu)^2))
-  )
+- **MSFE falls monotonically.** By the conventional standard, the forecast is
+  getting steadily better.
+- **RAFE falls too** — the mean channel genuinely does improve.
+- **C-RAFE rises from zero**, because the covariance is being corrupted at the
+  same time.
+- **T-RAFE rises.** The sum of the two channels says the *decision* is getting
+  worse even as the forecast error gets smaller.
+
+```{r}
+s <- agg[agg$n_ind == 30, ]
+op <- par(mfrow = c(1, 2), mar = c(4.2, 4.4, 2.4, 1))
+plot(s$lambda, s$MSFE, type = "b", pch = 19, col = "firebrick", lwd = 2,
+     xlab = expression(lambda), ylab = "MSFE", main = "What RMSE sees")
+plot(s$lambda, s$T_RAFE, type = "b", pch = 19, col = "steelblue", lwd = 2,
+     xlab = expression(lambda), ylab = "T-RAFE", main = "What the bound sees")
+par(op)
+```
+
+Two metrics, same forecasts, opposite verdicts. That is the paper's title: the
+forecast improvement is real, but it gets *lost in translation* on the way to
+the portfolio, because the accuracy gain and the covariance damage arrive
+together and only one of them shows up in RMSE.
+
+```{r}
+by_n <- do.call(rbind, lapply(no_samples, function(k) {
+  s <- agg[agg$n_ind == k, ]
+  data.frame(n_ind = k,
+             cor_MSFE   = cor(s$MSFE,   s$sharpe),
+             cor_RAFE   = cor(s$RAFE,   s$sharpe),
+             cor_T_RAFE = cor(s$T_RAFE, s$sharpe))
 }))
-panel$delta <- panel$SR_star - panel$SR_hat
-
-nrow(panel)
-head(panel[, c("date", "rafe", "crafe", "trafe", "delta", "rmse")])
+round(by_n, 3)
 ```
 
-## Does the bound hold?
+## An honest caveat on the portfolio column
 
-The theorem says the realised Sharpe gap $\Delta = SR^{*} - SR(\hat w)$ never
-exceeds $c \cdot \mathrm{RAFE} + SR^{*} \cdot \mathrm{C\text{-}RAFE}$.
+The realised Sharpe column is noisy and does not move monotonically in
+$\lambda$, and the correlations above are correspondingly weak and unstable
+across $N$. This is a property of the portfolio construction, not of the
+metrics.
+
+Budget normalisation divides by $\mathbf{1}^\top\hat\Sigma^{-1}\hat\mu$, which
+for an unconstrained tangency portfolio on 10-30 industries passes close to zero
+at some dates. When it does, leverage explodes and a single month can dominate
+the whole series:
 
 ```{r}
-c(violations = sum(panel$delta > panel$trafe + 1e-10),
-  windows    = nrow(panel))
-
-summary(panel$trafe / panel$delta)
+idx  <- draws[[3]][[1]]
+Sinv <- lapply(roll_S, function(S) solve(S[idx, idx, drop = FALSE]))
+FC   <- roll_mu[, idx, drop = FALSE]
+budget <- vapply(seq_along(oos), function(i) sum(Sinv[[i]] %*% FC[i, ]), numeric(1))
+signif(quantile(abs(budget), c(0, 0.01, 0.05, 0.50)), 3)
 ```
 
-No violations. Note also how *loose* the bound is in practice — the median
-ratio of bound to realised gap is well above one. The bound's value is not that
-it is tight; it is that its two components tell you *where* the loss comes
-from, and that they are the things you can act on.
+Scale-invariant weights make the $\lambda$ signal reappear immediately: holding
+$\lVert w\rVert_2 = 1$ instead of $\mathbf{1}^\top w = 1$, realised Sharpe rises
+monotonically with $\lambda$ across the whole grid. The metrics are doing their
+job either way; it is the leverage that is unstable.
 
-`compute_trafe()` applies the theorem's data-dependent constant automatically
-($c = 1$ when $\mathrm{RAFE} \le SR^{*}$, else $c = 2$):
-
-```{r}
-table(c = panel$c_used)
-```
-
-## Why RMSE is the wrong instrument
-
-Here is the paper's central empirical point. Both RMSE and RAFE measure the
-error in $\hat\mu$. Only one of them tracks the economic damage.
-
-```{r}
-cor_tbl <- data.frame(
-  metric      = c("RMSE", "RAFE", "C-RAFE", "T-RAFE"),
-  correlation = c(cor(panel$rmse,  panel$delta),
-                  cor(panel$rafe,  panel$delta),
-                  cor(panel$crafe, panel$delta),
-                  cor(panel$trafe, panel$delta)),
-  rank_corr   = c(cor(panel$rmse,  panel$delta, method = "spearman"),
-                  cor(panel$rafe,  panel$delta, method = "spearman"),
-                  cor(panel$crafe, panel$delta, method = "spearman"),
-                  cor(panel$trafe, panel$delta, method = "spearman"))
-)
-cor_tbl
-```
-
-```{r}
-op <- par(mfrow = c(1, 2), mar = c(4.2, 4.2, 2.4, 1))
-plot(panel$rmse, panel$delta, pch = 19, col = "grey35",
-     xlab = "RMSE of the mean forecast", ylab = expression(Delta ~ "(Sharpe gap)"),
-     main = "RMSE vs economic loss")
-abline(lm(delta ~ rmse, panel), col = "firebrick", lwd = 2)
-plot(panel$rafe, panel$delta, pch = 19, col = "grey35",
-     xlab = "RAFE of the mean forecast", ylab = expression(Delta ~ "(Sharpe gap)"),
-     main = "RAFE vs economic loss")
-abline(lm(delta ~ rafe, panel), col = "firebrick", lwd = 2)
-par(op)
-```
-
-Same forecast errors, same evaluation windows. Re-weighting the error by
-$\Sigma^{-1}$ — charging the forecaster for mistakes in directions the
-optimiser actually leans on — is what turns a forecast-accuracy number into a
-decision-relevant one. On this sample RAFE correlates with the realised Sharpe
-gap at roughly $0.69$ against RMSE's $0.19$.
-
-### A result worth being explicit about
-
-The same table shows C-RAFE and T-RAFE correlating *negatively* with $\Delta$.
-That is not a contradiction, and it is worth understanding before anyone uses
-T-RAFE as a scoring rule.
-
-T-RAFE is an **upper bound**, not an estimate of the gap. C-RAFE is an operator
-norm, so it is governed by the single worst-distorted eigendirection of
-$\hat\Sigma$ relative to $\Sigma$. In windows where the sample covariance is
-close to singular, C-RAFE explodes — but the plug-in portfolio does not
-necessarily lose a correspondingly large amount of realised Sharpe, because it
-may simply not load on the offending direction. The bound stays valid (it never
-binds), while the scalar it produces stops ranking windows by economic damage.
-
-The practical reading: use the **decomposition**, not the scalar. RAFE is the
-quantity that tracks the mean channel's damage and that a mean corrector can
-act on; C-RAFE is the quantity a covariance cleaner can act on. Adding them
-gives you a certificate, not a leaderboard.
-
-## The two channels through time
-
-`compute_trafe()` returns the decomposition, so you can see whether a bad
-window was a *mean* problem or a *covariance* problem.
-
-```{r}
-op <- par(mar = c(4.2, 4.2, 2.4, 1))
-matplot(panel$date,
-        cbind(panel$delta, panel$rafe, panel$SR_star * panel$crafe),
-        type = "l", lty = 1, lwd = 2, col = c("black", "steelblue", "darkorange"),
-        xaxt = "n", xlab = "", ylab = "",
-        main = "Realised gap and its two bounding channels")
-axis(1, at = pretty(panel$date), labels = format(pretty(panel$date), "%Y"))
-legend("topleft", bty = "n", lwd = 2,
-       col = c("black", "steelblue", "darkorange"),
-       legend = c(expression(Delta), "RAFE (mean channel)",
-                  expression(SR^"*" %*% "C-RAFE (covariance channel)")))
-par(op)
-```
-
-On this universe the covariance channel is the larger of the two in about 90%
-of windows, and roughly four times the mean channel on average:
-
-```{r}
-c(mean_channel       = mean(panel$rafe),
-  covariance_channel = mean(panel$SR_star * panel$crafe),
-  share_cov_larger   = mean(panel$SR_star * panel$crafe > panel$rafe))
-```
-
-That is the empirical motivation for pairing a mean corrector with a covariance
-cleaner rather than fixing $\hat\mu$ alone — the subject of
-`vignette("rafe-post-processing", package = "rafe")`.
+This vignette reproduces the paper's *mechanism* on the paper's data and
+configuration, at a reduced number of draws. It is not a substitute for the
+replication package, which covers the market-timing and cross-sectional sorting
+settings as well.
 
 ## Reference
 
 Salcher, T., Stöckl, S., & Hanke, M. (2026). Lost in Translation?
-Risk-Adjusting RMSE for Economic Forecast Performance. *Journal of
-Forecasting*. \doi{10.1002/for.70134}
+Risk-Adjusting RMSE for Economic Forecast Performance. *Journal of Forecasting*.
+\doi{10.1002/for.70134}

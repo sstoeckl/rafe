@@ -4,17 +4,20 @@
 \alias{compute_rafe}
 \title{Risk-Adjusted Forecast Error (RAFE)}
 \usage{
-compute_rafe(mu_hat, mu, Sigma_inv = NULL, Sigma = NULL)
+compute_rafe(mu_hat, mu, Sigma = NULL, Sigma_inv = NULL)
 }
 \arguments{
 \item{mu_hat}{Numeric vector of forecast means.}
 
 \item{mu}{Numeric vector of realised means (same length as \code{mu_hat}).}
 
-\item{Sigma_inv}{Optional precision matrix (inverse covariance). If \code{NULL},
-\code{Sigma} must be provided.}
+\item{Sigma}{Realised covariance matrix. The argument order matches the
+paper's replication code, so \code{compute_rafe(mu_hat, mu, Sigma)} does the
+same thing here as it does there.}
 
-\item{Sigma}{Optional covariance matrix (used if \code{Sigma_inv} is \code{NULL}).}
+\item{Sigma_inv}{Optional precision matrix, supplied instead of \code{Sigma} when
+it is already available (it avoids an inversion). Must be a \emph{precision},
+not a covariance.}
 }
 \value{
 A length-1 numeric.
