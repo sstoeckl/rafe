@@ -6,7 +6,7 @@
 #'
 #' @param mu_hat Forecast mean.
 #' @param Sigma_hat Forecast covariance.
-#' @param kappa Optional shrinkage intensity in [0, 1]. If `NULL`, tuned on
+#' @param kappa Optional shrinkage intensity in `[0, 1]`. If `NULL`, tuned on
 #'   inner-validation RAFE.
 #' @param target Shrinkage target. One of `"grandmean"` (default; shrinks
 #'   toward the cross-sectional mean) or `"zero"`.
@@ -30,7 +30,7 @@ mu_rafe_stein <- function(mu_hat, Sigma_hat, kappa = NULL, target = c("grandmean
 #' C-RAFE.
 #'
 #' @param Sigma_hat Forecast covariance.
-#' @param tau_rel Optional relative floor in [0, 0.5]. If `NULL`, tuned on
+#' @param tau_rel Optional relative floor in `[0, 0.5]`. If `NULL`, tuned on
 #'   inner-validation C-RAFE.
 #'
 #' @return A cleaned covariance matrix (same dimension as `Sigma_hat`).

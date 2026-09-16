@@ -13,8 +13,8 @@
 #' - Metrics: [compute_rafe()], [compute_crafe()], [compute_trafe()].
 #' - Post-processing estimators (Paper A): [mu_rafe_stein()],
 #'   [sigma_crafe_floor()], [joint_trafe_tune()], [sep_tune()].
-#' - Training-loss objectives (Paper B): [xgb_trafe_objective()],
-#'   [torch_trafe_loss()] (to be added).
+#' - Training-loss objectives (Paper B): `xgb_trafe_objective()`,
+#'   `torch_trafe_loss()` (to be added).
 #'
 #' @keywords internal
 "_PACKAGE"
