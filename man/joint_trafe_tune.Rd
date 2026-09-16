@@ -6,8 +6,8 @@
 \usage{
 joint_trafe_tune(
   R_train,
-  kappa_grid = seq(0, 1, by = 0.025),
-  tau_grid = seq(0, 1, by = 0.05),
+  kappa_grid = seq(0, 1, length.out = 101),
+  tau_grid = seq(0, 0.5, length.out = 101),
   inner_split = c(40, 20),
   target = c("grandmean", "zero")
 )
@@ -16,9 +16,14 @@ joint_trafe_tune(
 \item{R_train}{Numeric matrix of training returns, observations in rows and
 assets in columns.}
 
-\item{kappa_grid}{Grid of shrinkage intensities to search.}
+\item{kappa_grid}{Grid of shrinkage intensities to search. The default
+matches Paper A's production grid, 101 points on \verb{[0, 1]}.}
 
-\item{tau_grid}{Grid of relative eigenvalue floors to search.}
+\item{tau_grid}{Grid of relative eigenvalue floors to search. The default
+matches Paper A's production grid, 101 points on \verb{[0, 0.5]}. Floors above
+0.5 flatten the spectrum so aggressively that the cleaned covariance
+carries little information about the original; the paper does not admit
+them.}
 
 \item{inner_split}{Length-2 vector: rows used for inner training and for
 inner validation.}

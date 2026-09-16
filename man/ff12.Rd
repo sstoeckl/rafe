@@ -3,12 +3,12 @@
 \docType{data}
 \name{ff12}
 \alias{ff12}
-\title{Fama-French 12 Industry Portfolios, Monthly}
+\title{Fama-French 12 Industry Portfolios, Monthly Excess Returns}
 \format{
 A data frame with 720 rows and 13 columns:
 \describe{
 \item{date}{Month, as a \code{Date} at the first of the month.}
-\item{NoDur}{Consumer non-durables.}
+\item{NoDur}{Consumer non-durables, excess return.}
 \item{Durbl}{Consumer durables.}
 \item{Manuf}{Manufacturing.}
 \item{Enrgy}{Energy.}
@@ -30,15 +30,19 @@ Kenneth R. French's data library,
 ff12
 }
 \description{
-Value-weighted monthly returns on Kenneth French's 12 industry portfolios,
+Value-weighted monthly \emph{excess} returns (industry return minus the
+one-month risk-free rate) on Kenneth French's 12 industry portfolios,
 January 1964 to December 2023. This is the universe used for the worked
 examples in the package vignettes; it is included so that the vignettes
 build reproducibly and without a network connection.
 }
 \details{
 Dates are stored at month \emph{start} as a labelling convention; each row is the
-return over that calendar month. Returns are simple (not log) and are
-expressed as decimals, not percentages.
+return over that calendar month. Returns are simple (not log), expressed as
+decimals rather than percentages, and are \strong{excess of the one-month
+risk-free rate} -- verified identical to \code{industry - RF} from the
+Fama-French research factors over all 720 months. They can therefore be used
+directly in Sharpe-ratio and tangency-portfolio calculations.
 }
 \examples{
 data(ff12)

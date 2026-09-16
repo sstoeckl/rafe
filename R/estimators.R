@@ -182,8 +182,13 @@ sigma_crafe_floor <- function(Sigma_hat, tau_rel = NULL) {
 #'
 #' @param R_train Numeric matrix of training returns, observations in rows and
 #'   assets in columns.
-#' @param kappa_grid Grid of shrinkage intensities to search.
-#' @param tau_grid Grid of relative eigenvalue floors to search.
+#' @param kappa_grid Grid of shrinkage intensities to search. The default
+#'   matches Paper A's production grid, 101 points on `[0, 1]`.
+#' @param tau_grid Grid of relative eigenvalue floors to search. The default
+#'   matches Paper A's production grid, 101 points on `[0, 0.5]`. Floors above
+#'   0.5 flatten the spectrum so aggressively that the cleaned covariance
+#'   carries little information about the original; the paper does not admit
+#'   them.
 #' @param inner_split Length-2 vector: rows used for inner training and for
 #'   inner validation.
 #' @param target Shrinkage target passed to [mu_rafe_stein()].
@@ -203,8 +208,8 @@ sigma_crafe_floor <- function(Sigma_hat, tau_rel = NULL) {
 #' @inherit mu_rafe_stein references
 #' @export
 sep_tune <- function(R_train,
-                     kappa_grid = seq(0, 1, by = 0.025),
-                     tau_grid = seq(0, 1, by = 0.05),
+                     kappa_grid = seq(0, 1, length.out = 101),
+                     tau_grid = seq(0, 0.5, length.out = 101),
                      inner_split = c(40, 20),
                      target = c("grandmean", "zero")) {
   target <- match.arg(target)
@@ -257,8 +262,8 @@ sep_tune <- function(R_train,
 #' @inherit mu_rafe_stein references
 #' @export
 joint_trafe_tune <- function(R_train,
-                             kappa_grid = seq(0, 1, by = 0.025),
-                             tau_grid = seq(0, 1, by = 0.05),
+                             kappa_grid = seq(0, 1, length.out = 101),
+                             tau_grid = seq(0, 0.5, length.out = 101),
                              inner_split = c(40, 20),
                              target = c("grandmean", "zero")) {
   target <- match.arg(target)

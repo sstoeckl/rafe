@@ -80,7 +80,7 @@ inner-validation T-RAFE.
 
 ```{r}
 kg <- seq(0, 1, by = 0.05)
-tg <- seq(0, 1, by = 0.10)
+tg <- seq(0, 0.5, by = 0.05)
 
 fit_sep   <- sep_tune(window, kappa_grid = kg, tau_grid = tg)
 fit_joint <- joint_trafe_tune(window, kappa_grid = kg, tau_grid = tg)
@@ -172,17 +172,21 @@ round(t(apply(rets, 2, ann)), 3)
 ```
 
 The uncorrected plug-in tangency portfolio is the disaster the literature leads
-you to expect: an annualised volatility above 200% and a Sharpe ratio near
-zero. Correcting the moments cuts volatility by roughly two thirds and lifts the
-Sharpe ratio, because the eigenvalue floor stops the optimiser from taking
-enormous positions along badly-estimated directions.
+you to expect: an annualised volatility above 200% and a Sharpe ratio near zero.
 
-**And equal weighting still beats both.** That is not a bug in the vignette, and
-it is worth stating plainly: on a 12-asset industry universe with unconstrained
-weights, `1/N` is a famously hard benchmark. Paper A's claims rest on a
-different and much more careful design — larger cross-sections, non-overlapping
-inference, and comparison against Ledoit-Wolf and QIS rather than against a raw
-plug-in. Nothing here should be read as reproducing them; see the papers.
+Correcting the moments cuts that volatility by about **85%**, from roughly 2.28
+to 0.36 annualised. The Sharpe ratio improves too, but far more modestly --
+from about 0.09 to 0.11 -- because the correction shrinks the mean as well as
+the risk. Most of what the eigenvalue floor buys you here is the removal of
+enormous leveraged positions along badly-estimated directions, not extra return
+per unit of risk.
+
+**And equal weighting still beats both**, at about 0.46. That is not a bug in
+the vignette, and it is worth stating plainly: on a 12-asset industry universe
+with unconstrained weights, `1/N` is a famously hard benchmark. Paper A's claims
+rest on a different and much more careful design -- larger cross-sections,
+non-overlapping inference, and comparison against Ledoit-Wolf and QIS rather
+than against a raw plug-in. Nothing here reproduces them; see the papers.
 
 ## The separability claim
 
@@ -202,6 +206,20 @@ two channels can be tuned independently without loss, which turns a
 two-dimensional grid search into two one-dimensional ones. If you are tuning on
 a large cross-section, prefer `sep_tune()` — it is the cheaper of the two and,
 here, selects identically.
+
+One caveat on the grid. Paper A admits relative floors on `[0, 0.5]`, and that
+is the package default. On this universe the selected $\tau$ sits on the upper
+edge of that range in well over half the rebalances:
+
+```{r}
+c(tau_median = median(pars[, "t_sep"]),
+  share_at_upper_edge = mean(pars[, "t_sep"] == max(tg)))
+```
+
+A boundary-binding parameter means the data wants more flooring than the grid
+allows, so the reported optimum is a constrained one. Widening the grid here
+does improve realised Sharpe — but it leaves the range the paper works in, so
+the package will not do it silently.
 
 ## References
 

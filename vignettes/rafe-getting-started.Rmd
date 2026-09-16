@@ -68,7 +68,7 @@ inner-validation split, then applies both:
 
 ```{r}
 fit <- sep_tune(train, kappa_grid = seq(0, 1, by = 0.1),
-                       tau_grid   = seq(0, 1, by = 0.2))
+                       tau_grid   = seq(0, 0.5, by = 0.1))
 c(kappa = fit$kappa, tau = fit$tau_rel)
 
 c(rafe_before  = compute_rafe(mu_hat, mu, Sigma = Sigma),
