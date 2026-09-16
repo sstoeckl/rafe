@@ -1,0 +1,202 @@
+---
+title: "1. Evaluating forecasts: RAFE, C-RAFE and the Sharpe gap"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{1. Evaluating forecasts: RAFE, C-RAFE and the Sharpe gap}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 7,
+                      fig.height = 4.2, fig.align = "center")
+options(digits = 4)
+```
+
+```{r}
+library(rafe)
+```
+
+This vignette works through the evaluation example of Salcher, Stöckl & Hanke
+(2026, *Journal of Forecasting*) on the 12 Fama-French industry portfolios.
+
+The question the paper asks is simple. A forecaster hands you a mean vector
+$\hat\mu$ and a covariance $\hat\Sigma$. You feed them into a mean-variance
+optimiser. **How much Sharpe ratio do you lose because the forecasts were
+wrong?** The conventional answer — look at RMSE — turns out to be the wrong
+instrument, because RMSE does not know which errors the optimiser cares about.
+
+## The setup
+
+We roll a 60-month estimation window and a 60-month evaluation window across
+the sample, stepping a year at a time. On each window the estimated moments
+play the role of the *forecast* $(\hat\mu, \hat\Sigma)$ and the realised
+moments of the following window play the role of the *truth* $(\mu, \Sigma)$.
+
+```{r}
+data(ff12)
+R     <- as.matrix(ff12[, -1])
+dates <- ff12$date
+c(months = nrow(R), assets = ncol(R))
+```
+
+```{r}
+T_train <- 60L
+T_eval  <- 60L
+step    <- 12L
+starts  <- seq(1L, nrow(R) - T_train - T_eval + 1L, by = step)
+
+# Sharpe ratio of the plug-in tangency portfolio, evaluated under the truth.
+plugin_sharpe <- function(mu_hat, S_hat, mu, Sigma) {
+  iSh <- solve(S_hat)
+  w   <- drop(iSh %*% mu_hat) / drop(t(mu_hat) %*% iSh %*% mu_hat)
+  drop(t(mu) %*% w) / sqrt(drop(t(w) %*% Sigma %*% w))
+}
+
+panel <- do.call(rbind, lapply(starts, function(s) {
+  tr <- R[s:(s + T_train - 1L), ]
+  ev <- R[(s + T_train):(s + T_train + T_eval - 1L), ]
+
+  mu_hat <- colMeans(tr); S_hat <- stats::cov(tr)
+  mu     <- colMeans(ev); Sigma <- stats::cov(ev)
+
+  bound   <- compute_trafe(mu_hat, mu, S_hat, Sigma)
+  SR_star <- attr(bound, "SR_star")
+
+  data.frame(
+    date    = dates[s + T_train],
+    rafe    = attr(bound, "rafe"),
+    crafe   = attr(bound, "crafe"),
+    trafe   = as.numeric(bound),
+    c_used  = attr(bound, "c"),
+    SR_star = SR_star,
+    SR_hat  = plugin_sharpe(mu_hat, S_hat, mu, Sigma),
+    rmse    = sqrt(mean((mu_hat - mu)^2))
+  )
+}))
+panel$delta <- panel$SR_star - panel$SR_hat
+
+nrow(panel)
+head(panel[, c("date", "rafe", "crafe", "trafe", "delta", "rmse")])
+```
+
+## Does the bound hold?
+
+The theorem says the realised Sharpe gap $\Delta = SR^{*} - SR(\hat w)$ never
+exceeds $c \cdot \mathrm{RAFE} + SR^{*} \cdot \mathrm{C\text{-}RAFE}$.
+
+```{r}
+c(violations = sum(panel$delta > panel$trafe + 1e-10),
+  windows    = nrow(panel))
+
+summary(panel$trafe / panel$delta)
+```
+
+No violations. Note also how *loose* the bound is in practice — the median
+ratio of bound to realised gap is well above one. The bound's value is not that
+it is tight; it is that its two components tell you *where* the loss comes
+from, and that they are the things you can act on.
+
+`compute_trafe()` applies the theorem's data-dependent constant automatically
+($c = 1$ when $\mathrm{RAFE} \le SR^{*}$, else $c = 2$):
+
+```{r}
+table(c = panel$c_used)
+```
+
+## Why RMSE is the wrong instrument
+
+Here is the paper's central empirical point. Both RMSE and RAFE measure the
+error in $\hat\mu$. Only one of them tracks the economic damage.
+
+```{r}
+cor_tbl <- data.frame(
+  metric      = c("RMSE", "RAFE", "C-RAFE", "T-RAFE"),
+  correlation = c(cor(panel$rmse,  panel$delta),
+                  cor(panel$rafe,  panel$delta),
+                  cor(panel$crafe, panel$delta),
+                  cor(panel$trafe, panel$delta)),
+  rank_corr   = c(cor(panel$rmse,  panel$delta, method = "spearman"),
+                  cor(panel$rafe,  panel$delta, method = "spearman"),
+                  cor(panel$crafe, panel$delta, method = "spearman"),
+                  cor(panel$trafe, panel$delta, method = "spearman"))
+)
+cor_tbl
+```
+
+```{r}
+op <- par(mfrow = c(1, 2), mar = c(4.2, 4.2, 2.4, 1))
+plot(panel$rmse, panel$delta, pch = 19, col = "grey35",
+     xlab = "RMSE of the mean forecast", ylab = expression(Delta ~ "(Sharpe gap)"),
+     main = "RMSE vs economic loss")
+abline(lm(delta ~ rmse, panel), col = "firebrick", lwd = 2)
+plot(panel$rafe, panel$delta, pch = 19, col = "grey35",
+     xlab = "RAFE of the mean forecast", ylab = expression(Delta ~ "(Sharpe gap)"),
+     main = "RAFE vs economic loss")
+abline(lm(delta ~ rafe, panel), col = "firebrick", lwd = 2)
+par(op)
+```
+
+Same forecast errors, same evaluation windows. Re-weighting the error by
+$\Sigma^{-1}$ — charging the forecaster for mistakes in directions the
+optimiser actually leans on — is what turns a forecast-accuracy number into a
+decision-relevant one. On this sample RAFE correlates with the realised Sharpe
+gap at roughly $0.69$ against RMSE's $0.19$.
+
+### A result worth being explicit about
+
+The same table shows C-RAFE and T-RAFE correlating *negatively* with $\Delta$.
+That is not a contradiction, and it is worth understanding before anyone uses
+T-RAFE as a scoring rule.
+
+T-RAFE is an **upper bound**, not an estimate of the gap. C-RAFE is an operator
+norm, so it is governed by the single worst-distorted eigendirection of
+$\hat\Sigma$ relative to $\Sigma$. In windows where the sample covariance is
+close to singular, C-RAFE explodes — but the plug-in portfolio does not
+necessarily lose a correspondingly large amount of realised Sharpe, because it
+may simply not load on the offending direction. The bound stays valid (it never
+binds), while the scalar it produces stops ranking windows by economic damage.
+
+The practical reading: use the **decomposition**, not the scalar. RAFE is the
+quantity that tracks the mean channel's damage and that a mean corrector can
+act on; C-RAFE is the quantity a covariance cleaner can act on. Adding them
+gives you a certificate, not a leaderboard.
+
+## The two channels through time
+
+`compute_trafe()` returns the decomposition, so you can see whether a bad
+window was a *mean* problem or a *covariance* problem.
+
+```{r}
+op <- par(mar = c(4.2, 4.2, 2.4, 1))
+matplot(panel$date,
+        cbind(panel$delta, panel$rafe, panel$SR_star * panel$crafe),
+        type = "l", lty = 1, lwd = 2, col = c("black", "steelblue", "darkorange"),
+        xaxt = "n", xlab = "", ylab = "",
+        main = "Realised gap and its two bounding channels")
+axis(1, at = pretty(panel$date), labels = format(pretty(panel$date), "%Y"))
+legend("topleft", bty = "n", lwd = 2,
+       col = c("black", "steelblue", "darkorange"),
+       legend = c(expression(Delta), "RAFE (mean channel)",
+                  expression(SR^"*" %*% "C-RAFE (covariance channel)")))
+par(op)
+```
+
+On this universe the covariance channel is the larger of the two in about 90%
+of windows, and roughly four times the mean channel on average:
+
+```{r}
+c(mean_channel       = mean(panel$rafe),
+  covariance_channel = mean(panel$SR_star * panel$crafe),
+  share_cov_larger   = mean(panel$SR_star * panel$crafe > panel$rafe))
+```
+
+That is the empirical motivation for pairing a mean corrector with a covariance
+cleaner rather than fixing $\hat\mu$ alone — the subject of
+`vignette("rafe-post-processing", package = "rafe")`.
+
+## Reference
+
+Salcher, T., Stöckl, S., & Hanke, M. (2026). Lost in Translation?
+Risk-Adjusting RMSE for Economic Forecast Performance. *Journal of
+Forecasting*. \doi{10.1002/for.70134}

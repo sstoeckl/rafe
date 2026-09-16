@@ -4,26 +4,65 @@
 \alias{mu_rafe_stein}
 \title{RAFE-Stein-Corrected Mean}
 \usage{
-mu_rafe_stein(mu_hat, Sigma_hat, kappa = NULL, target = c("grandmean", "zero"))
+mu_rafe_stein(
+  mu_hat,
+  Sigma_hat,
+  kappa = NULL,
+  target = c("grandmean", "zero"),
+  T_obs = NULL
+)
 }
 \arguments{
 \item{mu_hat}{Forecast mean.}
 
-\item{Sigma_hat}{Forecast covariance.}
+\item{Sigma_hat}{Forecast covariance. Must be a covariance, never a
+precision matrix; the function inverts it internally.}
 
-\item{kappa}{Optional shrinkage intensity in \verb{[0, 1]}. If \code{NULL}, tuned on
-inner-validation RAFE.}
+\item{kappa}{Optional shrinkage intensity in \verb{[0, 1]}, where 0 leaves
+\code{mu_hat} untouched and 1 collapses it onto the target. If \code{NULL}, the
+James--Stein intensity is computed from \code{T_obs}.}
 
 \item{target}{Shrinkage target. One of \code{"grandmean"} (default; shrinks
-toward the cross-sectional mean) or \code{"zero"}.}
+toward the cross-sectional mean of \code{mu_hat}) or \code{"zero"}.}
+
+\item{T_obs}{Number of observations the forecast was estimated from. Needed
+only when \code{kappa} is \code{NULL}.}
 }
 \value{
-A numeric vector of corrected means (same length as \code{mu_hat}).
+A numeric vector of corrected means (same length as \code{mu_hat}), with
+the applied intensity attached as attribute \code{kappa}.
 }
 \description{
-Stein-style shrinkage of a forecast mean toward a target, in the
-\eqn{\hat\Sigma^{-1/2}}-whitened space. The shrinkage intensity \eqn{\kappa}
-can be passed explicitly or tuned on inner-validation RAFE.
+Positive-part James--Stein shrinkage of a forecast mean toward a target, in
+the \eqn{\hat\Sigma^{-1/2}}-whitened space.
+}
+\details{
+Writing \eqn{\hat m := \hat\Sigma^{-1/2}\hat\mu} and \eqn{m_0 :=
+\hat\Sigma^{-1/2}\mu_0} for the whitened forecast and target, the James--Stein
+map of Salcher, Stöckl & Hanke is
+\deqn{JS(z) = m_0 + \left(1 - \frac{N-2}{T\,\|z - m_0\|_2^2}\right)_{+}(z - m_0),}
+and the corrected mean is \eqn{\tilde\mu = \hat\Sigma^{1/2} JS(\hat m)}.
+Because \eqn{\|\hat m - m_0\|_2^2 = (\hat\mu - \mu_0)^\top \hat\Sigma^{-1}
+(\hat\mu - \mu_0)}, this is algebraically a linear shrinkage in the \emph{raw}
+space whose intensity is computed in the \emph{risk} metric:
+\eqn{\tilde\mu = (1 - \kappa)\hat\mu + \kappa\mu_0}.
+
+Supply \code{T_obs} to use the James--Stein intensity, or \code{kappa} to fix the
+intensity directly (which is what \code{\link[=sep_tune]{sep_tune()}} and \code{\link[=joint_trafe_tune]{joint_trafe_tune()}}
+search over). Exactly one of the two is required.
+}
+\examples{
+set.seed(1)
+R <- matrix(rnorm(60 * 5, mean = 0.01, sd = 0.05), 60, 5)
+mu_hat    <- colMeans(R)
+Sigma_hat <- stats::cov(R)
+
+# James-Stein intensity, implied by the sample size:
+mu_rafe_stein(mu_hat, Sigma_hat, T_obs = 60)
+
+# Fixed intensity:
+mu_rafe_stein(mu_hat, Sigma_hat, kappa = 0.5)
+
 }
 \references{
 Stöckl, S., Salcher, T., & Hanke, M. (2026/27, working). Post-Optimal

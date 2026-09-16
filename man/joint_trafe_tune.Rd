@@ -4,24 +4,51 @@
 \alias{joint_trafe_tune}
 \title{Jointly T-RAFE-Tuned Moment Correction}
 \usage{
-joint_trafe_tune(mu_hat, Sigma_hat, ...)
+joint_trafe_tune(
+  R_train,
+  kappa_grid = seq(0, 1, by = 0.025),
+  tau_grid = seq(0, 1, by = 0.05),
+  inner_split = c(40, 20),
+  target = c("grandmean", "zero")
+)
 }
 \arguments{
-\item{mu_hat}{Forecast mean.}
+\item{R_train}{Numeric matrix of training returns, observations in rows and
+assets in columns.}
 
-\item{Sigma_hat}{Forecast covariance.}
+\item{kappa_grid}{Grid of shrinkage intensities to search.}
 
-\item{...}{Passed to \code{\link[=mu_rafe_stein]{mu_rafe_stein()}} and \code{\link[=sigma_crafe_floor]{sigma_crafe_floor()}}.}
+\item{tau_grid}{Grid of relative eigenvalue floors to search.}
+
+\item{inner_split}{Length-2 vector: rows used for inner training and for
+inner validation.}
+
+\item{target}{Shrinkage target passed to \code{\link[=mu_rafe_stein]{mu_rafe_stein()}}.}
 }
 \value{
-A list with components \code{mu_tilde}, \code{Sigma_tilde}, \code{kappa}, \code{tau_rel}.
+A list with components \code{mu_tilde}, \code{Sigma_tilde}, \code{kappa},
+\code{tau_rel}, and the full inner-validation loss surface \code{loss_grid}
+(kappa in rows, tau in columns).
 }
 \description{
-Tunes \eqn{(\kappa, \tau)} jointly to minimise inner-validation T-RAFE.
-Empirically indistinguishable from sequential tuning (\code{sep_tune()}) — the
+Tunes \eqn{(\kappa, \tau)} jointly on the full grid to minimise
+inner-validation T-RAFE. Empirically close to indistinguishable from the
+sequential search of \code{\link[=sep_tune]{sep_tune()}}, which is the practical evidence that the
 bound's two channels are separable.
+}
+\examples{
+set.seed(1)
+R <- matrix(rnorm(80 * 6, mean = 0.008, sd = 0.05), 80, 6)
+fit <- joint_trafe_tune(R, kappa_grid = seq(0, 1, by = 0.1),
+                           tau_grid = seq(0, 1, by = 0.2))
+fit$kappa
+fit$tau_rel
+
 }
 \references{
 Stöckl, S., Salcher, T., & Hanke, M. (2026/27, working). Post-Optimal
 Moment Correction for Mean-Variance Portfolios.
+}
+\seealso{
+\code{\link[=sep_tune]{sep_tune()}} for the sequential search.
 }

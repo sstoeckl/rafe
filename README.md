@@ -26,27 +26,39 @@ remotes::install_github("sstoeckl/rafe")
 
 ```r
 library(rafe)
+data(ff12)
 
-mu_hat    <- rnorm(10)
-Sigma_hat <- diag(10)
-mu        <- rnorm(10)
-Sigma     <- diag(10)
+R     <- as.matrix(ff12[, -1])
+train <- R[1:60, ]
+eval  <- R[61:120, ]
+
+mu_hat <- colMeans(train); Sigma_hat <- cov(train)
+mu     <- colMeans(eval);  Sigma     <- cov(eval)
 
 # Metrics
 compute_rafe(mu_hat, mu, Sigma = Sigma)
 compute_crafe(Sigma_hat, Sigma)
-compute_trafe(mu_hat, mu, Sigma_hat, Sigma)
 
-# Post-processing
-mu_tilde    <- mu_rafe_stein(mu_hat, Sigma_hat)
-Sigma_tilde <- sigma_crafe_floor(Sigma_hat)
+# The bound, with its decomposition attached as attributes
+bound <- compute_trafe(mu_hat, mu, Sigma_hat, Sigma)
+unlist(attributes(bound))
 
-# Training objective (XGBoost) — Paper B
-# obj <- xgb_trafe_objective(Sigma_hat)
-# xgb.train(..., obj = obj, ...)
+# Post-processing: tune (kappa, tau) on an inner-validation split
+fit <- sep_tune(train)
+c(kappa = fit$kappa, tau = fit$tau_rel)
+
+compute_crafe(fit$Sigma_tilde, Sigma)   # lower than the uncorrected value
+
+# Or apply a correction directly
+mu_rafe_stein(mu_hat, Sigma_hat, T_obs = 60)   # James-Stein intensity
+sigma_crafe_floor(Sigma_hat, tau_rel = 0.3)
 ```
 
-See `vignettes/rafe-getting-started.Rmd` (once populated) for a guided tour.
+Three vignettes:
+
+- `vignette("rafe-getting-started")` — five-minute tour.
+- `vignette("rafe-evaluation")` — the Part 1 evaluation example on FF-12.
+- `vignette("rafe-post-processing")` — the Paper A correction example on FF-12.
 
 ## Citation
 

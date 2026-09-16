@@ -1,43 +1,96 @@
 ---
-title: "rafe — Getting Started"
+title: "0. rafe — getting started"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{rafe — Getting Started}
+  %\VignetteIndexEntry{0. rafe — getting started}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+options(digits = 4)
 ```
 
-> A 5-minute tour of the `rafe` package: metrics, post-processing
-> estimators, training-loss objectives. (Stub — to be expanded once the
-> package API is implemented.)
+```{r}
+library(rafe)
+```
 
-# What is RAFE?
+`rafe` implements decision-aligned forecast evaluation: metrics that score a
+return forecast by the damage its errors do to a portfolio, rather than by
+their size.
 
-(TODO) Brief recap of the Sharpe-gap bound from Salcher, Stöckl & Hanke (2026,
-*Journal of Forecasting*): $\Delta \le c \cdot \mathrm{RAFE} + SR^{\ast} \cdot
-\mathrm{C\text{-}RAFE}$. RAFE is a Mahalanobis-type mean error; C-RAFE is an
-operator-norm covariance error; their sum is T-RAFE.
+## The idea in one paragraph
 
-# Metrics
+Feed a forecast $(\hat\mu, \hat\Sigma)$ into a mean-variance optimiser and you
+get a portfolio whose Sharpe ratio falls short of the oracle's by some gap
+$\Delta$. Salcher, Stöckl & Hanke (2026) show that gap is bounded by two terms:
+a mean error measured in the risk metric, and a covariance distortion measured
+in the operator norm.
 
-(TODO) Example of `compute_rafe()`, `compute_crafe()`, `compute_trafe()` on a
-toy two-asset universe.
+$$\Delta \;\le\; c \cdot \underbrace{\lVert\hat\mu - \mu\rVert_{\Sigma^{-1}}}_{\mathrm{RAFE}}
+ \;+\; SR^{*} \cdot \underbrace{\lVert\Sigma^{1/2}\hat\Sigma^{-1}\Sigma^{1/2} - I\rVert_2}_{\mathrm{C\text{-}RAFE}}$$
 
-# Post-processing your forecasts
+RMSE appears nowhere. That is the point: it weights every asset equally, while
+the optimiser does not.
 
-(TODO) `mu_rafe_stein()`, `sigma_crafe_floor()`, `joint_trafe_tune()`,
-`sep_tune()` — when you have $(\hat\mu, \hat\Sigma)$ from an external
-forecaster and want to correct them under the bound.
+## The metrics
 
-# Training a decision-aware forecaster
+```{r}
+data(ff12)
+R <- as.matrix(ff12[, -1])
 
-(TODO) `xgb_trafe_objective()` — when you train your forecaster from scratch
-on non-return predictors (macro variables, characteristics, sentiment) and
-want the loss to align with the portfolio decision.
+train <- R[1:60, ]
+eval  <- R[61:120, ]
+
+mu_hat <- colMeans(train); Sigma_hat <- stats::cov(train)
+mu     <- colMeans(eval);  Sigma     <- stats::cov(eval)
+
+compute_rafe(mu_hat, mu, Sigma = Sigma)
+compute_crafe(Sigma_hat, Sigma)
+```
+
+`compute_trafe()` combines them, applying the theorem's data-dependent constant
+($c = 1$ if $\mathrm{RAFE} \le SR^{*}$, else $c = 2$) and returning the
+decomposition as attributes:
+
+```{r}
+bound <- compute_trafe(mu_hat, mu, Sigma_hat, Sigma)
+bound
+unlist(attributes(bound))
+```
+
+## The correctors
+
+If you cannot retrain the forecaster, correct its output. `sep_tune()` picks a
+mean-shrinkage intensity $\kappa$ and a covariance eigenvalue floor $\tau$ on an
+inner-validation split, then applies both:
+
+```{r}
+fit <- sep_tune(train, kappa_grid = seq(0, 1, by = 0.1),
+                       tau_grid   = seq(0, 1, by = 0.2))
+c(kappa = fit$kappa, tau = fit$tau_rel)
+
+c(rafe_before  = compute_rafe(mu_hat, mu, Sigma = Sigma),
+  rafe_after   = compute_rafe(fit$mu_tilde, mu, Sigma = Sigma),
+  crafe_before = compute_crafe(Sigma_hat, Sigma),
+  crafe_after  = compute_crafe(fit$Sigma_tilde, Sigma))
+```
+
+## Where to go next
+
+- `vignette("rafe-evaluation", package = "rafe")` — the Part 1 evaluation
+  example on the Fama-French 12 industries: does the bound hold, and does RAFE
+  track economic loss where RMSE does not?
+- `vignette("rafe-post-processing", package = "rafe")` — the Paper A
+  post-processing example: tuning $(\kappa, \tau)$, what the correction does to
+  both channels, and what it does to portfolios.
+
+Training-loss objectives for XGBoost and torch (Paper B's lane) are not part of
+this release.
+
+## References
+
+Salcher, T., Stöckl, S., & Hanke, M. (2026). Lost in Translation?
+Risk-Adjusting RMSE for Economic Forecast Performance. *Journal of Forecasting*.
+\doi{10.1002/for.70134}
