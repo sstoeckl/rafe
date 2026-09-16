@@ -23,6 +23,23 @@ A length-1 numeric.
 Computes \eqn{\mathrm{RAFE} = \sqrt{(\hat\mu - \mu)^\top \Sigma^{-1} (\hat\mu - \mu)}},
 the risk-adjusted distance between a forecast mean and the realised mean.
 }
+\details{
+The metric is a Mahalanobis distance in the population-risk metric, with no
+\eqn{1/N} normalisation. Consequently, at \eqn{\Sigma = I} it reduces to the
+Euclidean norm of the forecast error, which is \eqn{\sqrt{N}} times the
+conventional RMSE — see the examples.
+}
+\examples{
+set.seed(1)
+mu     <- rnorm(5)
+mu_hat <- mu + rnorm(5, sd = 0.1)
+
+compute_rafe(mu_hat, mu, Sigma = diag(5))
+
+# At Sigma = I the metric is sqrt(N) times RMSE:
+sqrt(5) * sqrt(mean((mu_hat - mu)^2))
+
+}
 \references{
 Salcher, T., Stöckl, S., & Hanke, M. (2026). Lost in Translation?
 Risk-Adjusting RMSE for Economic Forecast Performance.

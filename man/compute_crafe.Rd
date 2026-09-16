@@ -18,6 +18,16 @@ A length-1 numeric.
 Computes the operator-norm precision distortion
 \eqn{\mathrm{C\text{-}RAFE} = \|\Sigma^{1/2} \hat\Sigma^{-1} \Sigma^{1/2} - I\|_2}.
 }
+\details{
+The metric is zero if and only if \eqn{\hat\Sigma = \Sigma}, and is invariant
+to the common scaling of both arguments.
+}
+\examples{
+Sigma <- diag(c(1, 2, 3))
+compute_crafe(Sigma, Sigma)          # exactly 0
+compute_crafe(2 * Sigma, Sigma)      # scale distortion
+
+}
 \references{
 Salcher, T., Stöckl, S., & Hanke, M. (2026). Lost in Translation?
 Risk-Adjusting RMSE for Economic Forecast Performance.

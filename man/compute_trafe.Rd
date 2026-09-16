@@ -4,7 +4,7 @@
 \alias{compute_trafe}
 \title{Total RAFE (T-RAFE) — Sharpe-Gap Upper Bound}
 \usage{
-compute_trafe(mu_hat, mu, Sigma_hat, Sigma, c = 1, SR_star = NULL)
+compute_trafe(mu_hat, mu, Sigma_hat, Sigma, c = NULL, SR_star = NULL)
 }
 \arguments{
 \item{mu_hat}{Numeric vector of forecast means.}
@@ -15,19 +15,41 @@ compute_trafe(mu_hat, mu, Sigma_hat, Sigma, c = 1, SR_star = NULL)
 
 \item{Sigma}{Optional covariance matrix (used if \code{Sigma_inv} is \code{NULL}).}
 
-\item{c}{Scalar weighting for RAFE; defaults to 1. (The paper proves
-\eqn{c \in \{1, 2\}}.)}
+\item{c}{Scalar weighting for RAFE. If \code{NULL} (default), the theorem's rule
+is applied: 1 if \code{RAFE <= SR_star}, else 2.}
 
-\item{SR_star}{Optional oracle Sharpe ratio. If \code{NULL}, computed from
-\code{mu} and \code{Sigma_inv} (or \code{Sigma}).}
+\item{SR_star}{Optional oracle Sharpe ratio. If \code{NULL}, computed as
+\eqn{\sqrt{\mu^\top \Sigma^{-1} \mu}} from \code{mu} and \code{Sigma_inv} (or
+\code{Sigma}).}
 }
 \value{
-A length-1 numeric.
+A length-1 numeric, carrying the components as attributes \code{rafe},
+\code{crafe}, \code{c} and \code{SR_star}.
 }
 \description{
 Combines RAFE and C-RAFE into the upper bound on the Sharpe-ratio gap
-of a plug-in mean-variance portfolio:
+\eqn{\Delta = SR^{*} - SR(\hat w)} of a plug-in mean-variance portfolio:
 \eqn{\Delta \le c \cdot \mathrm{RAFE} + SR^{*} \cdot \mathrm{C\text{-}RAFE}}.
+}
+\details{
+Salcher, Stöckl & Hanke (2026) prove the bound with a \emph{data-dependent}
+constant: \eqn{c = 1} when \eqn{\mathrm{RAFE} \le SR^{*}}, and \eqn{c = 2}
+otherwise. This is the default (\code{c = NULL}). Passing a fixed numeric \code{c}
+overrides the rule and is intended for diagnostics only — in particular,
+\code{c = 1} does \strong{not} yield a valid upper bound in the regime
+\eqn{\mathrm{RAFE} > SR^{*}}.
+}
+\examples{
+set.seed(1)
+mu        <- rnorm(5) / 10
+Sigma     <- diag(5)
+mu_hat    <- mu + rnorm(5, sd = 0.02)
+Sigma_hat <- Sigma + diag(5) * 0.05
+
+tr <- compute_trafe(mu_hat, mu, Sigma_hat, Sigma)
+tr
+attributes(tr)[c("rafe", "crafe", "c", "SR_star")]
+
 }
 \references{
 Salcher, T., Stöckl, S., & Hanke, M. (2026). Lost in Translation?
