@@ -20,19 +20,18 @@ data(ff12)
 
 This vignette reproduces the empirical results of Salcher, Stöckl & Hanke
 (2026, *Journal of Forecasting*), Section 6, using only functions from this
-package. At the end we check the numbers against the published table.
+package, and checks them against the published tables.
 
 ## The claim being tested
 
-A forecast is scored with root mean squared error. A portfolio is scored with
-its Sharpe ratio. If the first is a good proxy for the second, then forecasts
-with lower RMSE should produce portfolios with a smaller shortfall against the
-best attainable Sharpe ratio.
+A forecast is scored with root mean squared error. A portfolio is scored by its
+Sharpe ratio. If the first were a good proxy for the second, forecasts with
+lower RMSE would produce portfolios closer to the best attainable Sharpe ratio.
 
-The paper's argument is that RMSE is what you get after stripping almost all
-the risk information out of a sound error measure. Starting from RAFE and
-imposing progressively cruder assumptions on the covariance matrix produces a
-nested sequence ending in RMSE:
+The paper's argument is that RMSE is what remains after almost all the risk
+information has been stripped out of a sound error measure. Starting from RAFE
+and imposing progressively cruder assumptions on the covariance gives a nested
+sequence ending at RMSE:
 
 | Restriction | Covariance used to weight the error |
 |---|---|
@@ -42,33 +41,30 @@ nested sequence ending in RMSE:
 | `"cv"` | correlations $0$, all variances set to the average variance |
 | `"i"` | the identity — this *is* RMSE |
 
-`restrict_cov()` performs the restriction and every metric takes a `variant`
-argument:
+`restrict_cov()` performs the restriction; every metric takes a `variant`:
 
 ```{r}
-set.seed(1)
 S <- stats::cov(as.matrix(ff12[1:120, 2:6]))
 round(stats::cov2cor(restrict_cov(S, "cc05")), 2)
-restrict_cov(S, "i")
 ```
 
 ## The design
 
 Monthly excess returns on the 12 Fama-French industry portfolios, January 1964
-to December 2023. Rolling windows of 60 months for estimation and the following
-36 months for evaluation, stepping one month at a time. The training moments
-are the forecast; the realised moments of the test window are the truth.
+to December 2023. Rolling 60-month estimation windows and the following
+36-month evaluation windows, stepping one month. Training moments are the
+forecast; realised moments of the test window are the truth.
 
 ```{r}
-R     <- as.matrix(ff12[, -1])
-train_len <- 60L
-test_len  <- 36L
+R <- as.matrix(ff12[, -1])
+train_len <- 60L; test_len <- 36L
+dates <- ff12$date
 c(months = nrow(R), assets = ncol(R),
   windows = nrow(R) - train_len - test_len + 1L)
 ```
 
-Portfolio weights use a ridge-shrunk covariance inverse, and the tangency
-portfolio is normalised to full investment:
+Weights use a ridge-shrunk covariance inverse; the tangency portfolio is
+normalised to full investment.
 
 ```{r}
 ridge_inverse <- function(Rw, alpha = 0.20) {
@@ -78,117 +74,176 @@ ridge_inverse <- function(Rw, alpha = 0.20) {
   if (min(ev) < 1e-6) Ss <- Ss + diag(abs(min(ev)) + 1e-4, ncol(Ss))
   solve(Ss)
 }
-tangency_weights <- function(mu, Sigma_inv) {
-  w <- drop(Sigma_inv %*% mu); w / sum(w)
-}
-gmv_weights <- function(Sigma_inv) {
-  w <- drop(Sigma_inv %*% rep(1, nrow(Sigma_inv))); w / sum(w)
-}
-realized_sharpe <- function(w, R_test) {
-  r <- drop(R_test %*% w); mean(r) / stats::sd(r)
-}
+budget   <- function(w) w / sum(w)
+sharpe   <- function(w, R_test) { r <- drop(R_test %*% w); mean(r) / stats::sd(r) }
 ```
 
 ## The rolling evaluation
 
-For each window we compute all five variants of RAFE, and the Sharpe-ratio gap
-of two strategies: the tangency portfolio, whose perfect-foresight benchmark is
-$SR^{*} = \sqrt{\mu^\top\Sigma^{-1}\mu}$, and the global minimum-variance
-portfolio, whose benchmark uses the realised moments.
+Two strategies: the **tangency** portfolio, which needs both moments, and the
+**global minimum-variance** portfolio, which needs only the covariance. Keep
+that difference in mind — it becomes the point later.
 
 ```{r}
 variants <- c("none", "cc05", "cc0", "cv", "i")
 starts   <- seq_len(nrow(R) - train_len - test_len + 1L)
+ones     <- rep(1, ncol(R))
 
 panel <- do.call(rbind, lapply(starts, function(s) {
   tr <- R[s:(s + train_len - 1L), ]
   te <- R[(s + train_len):(s + train_len + test_len - 1L), ]
 
   mu_hat <- colMeans(tr)
-  Sigma_w_inv <- ridge_inverse(tr)          # for weights
-  mu    <- colMeans(te)
-  Sigma <- stats::cov(te)
-  Sigma_inv <- solve(Sigma)
+  Sigma_hat <- stats::cov(tr)
+  Sigma_w_inv <- ridge_inverse(tr)
 
-  sr_real <- c(
-    tan = realized_sharpe(tangency_weights(mu_hat, Sigma_w_inv), te),
-    gmv = realized_sharpe(gmv_weights(Sigma_w_inv), te)
-  )
-  sr_oracle <- c(
-    tan = sqrt(drop(t(mu) %*% Sigma_inv %*% mu)),
-    gmv = realized_sharpe(gmv_weights(Sigma_inv), te)
-  )
+  mu <- colMeans(te); Sigma <- stats::cov(te); Sigma_inv <- solve(Sigma)
 
-  errs <- vapply(variants, function(v) compute_rafe(mu_hat, mu, Sigma, variant = v),
-                 numeric(1))
-  c(errs, gap_tan = unname(sr_oracle["tan"] - sr_real["tan"]),
-          gap_gmv = unname(sr_oracle["gmv"] - sr_real["gmv"]))
+  sr_tan <- sharpe(budget(drop(Sigma_w_inv %*% mu_hat)), te)
+  sr_gmv <- sharpe(budget(drop(Sigma_w_inv %*% ones)), te)
+  or_tan <- sqrt(drop(t(mu) %*% Sigma_inv %*% mu))       # perfect foresight
+  or_gmv <- sharpe(budget(drop(Sigma_inv %*% ones)), te)
+
+  c(vapply(variants, function(v) compute_rafe(mu_hat, mu, Sigma, variant = v),
+           numeric(1)),
+    setNames(vapply(variants, function(v) as.numeric(
+      compute_trafe(mu_hat, mu, Sigma, Sigma_hat, variant = v, SR_star = or_tan)),
+      numeric(1)), paste0("T_", variants)),
+    setNames(vapply(variants, function(v) as.numeric(
+      compute_trafe(mu_hat, mu, Sigma, Sigma_hat, variant = v, SR_star = or_gmv)),
+      numeric(1)), paste0("G_", variants)),
+    crafe = compute_crafe(Sigma, Sigma_hat),
+    sr_tan = sr_tan, sr_gmv = sr_gmv, or_tan = or_tan, or_gmv = or_gmv,
+    gap_tan = or_tan - sr_tan, gap_gmv = or_gmv - sr_gmv)
 }))
 panel <- as.data.frame(panel)
+panel$date <- dates[starts + train_len]
 nrow(panel)
 ```
 
-## Does the link to economic value survive the simplifications?
+## What the portfolios actually earned
+
+Before any metric, the raw economics. Monthly Sharpe ratios, averaged over the
+625 evaluation windows:
 
 ```{r}
-tbl <- data.frame(
-  metric = c("(none)", "-CC0.5", "-CC0", "-CV", "-I (RMSE)"),
-  tan = vapply(variants, function(v) cor(panel[[v]], panel$gap_tan), numeric(1)),
-  gmv = vapply(variants, function(v) cor(panel[[v]], panel$gap_gmv), numeric(1)),
-  row.names = NULL
+data.frame(
+  strategy      = c("Tangency", "Global minimum variance"),
+  realised      = c(mean(panel$sr_tan), mean(panel$sr_gmv)),
+  perfect_foresight = c(mean(panel$or_tan), mean(panel$or_gmv)),
+  gap           = c(mean(panel$gap_tan), mean(panel$gap_gmv))
 )
-tbl$tan <- round(tbl$tan, 3)
-tbl$gmv <- round(tbl$gmv, 3)
-tbl
 ```
 
-For the tangency portfolio the correlation between forecast error and economic
-loss falls from **0.68** under the full RAFE to **0.11** once the covariance has
-been stripped down to the identity. The same forecasts, the same portfolios, the
-same Sharpe-ratio gaps — only the yardstick changes, and with it almost all of
-the explanatory power.
+The tangency portfolio gives up far more than the minimum-variance portfolio:
+it needs a mean forecast, and means are hard. GMV needs only a covariance, and
+loses much less. The gap is what the metrics are trying to predict.
+
+## Table 4, Panel A
 
 ```{r}
-op <- par(mar = c(4.5, 4.5, 2.4, 1))
-barplot(tbl$tan, names.arg = tbl$metric, col = "#1f4e79", border = NA,
-        ylab = "correlation with the Sharpe-ratio gap",
-        main = "Tangency portfolio: each simplification costs explanatory power")
-abline(h = 0, col = "grey40")
+cor_rafe <- function(gap) vapply(variants, function(v) cor(panel[[v]], gap),
+                                 numeric(1))
+tan <- round(cor_rafe(panel$gap_tan), 3)
+gmv <- round(cor_rafe(panel$gap_gmv), 3)
+
+published_4a <- c(0.680, 0.440, 0.149, 0.190, 0.110)
+published_4a_gmv <- c(0.065, 0.126, 0.049, 0.041, 0.020)
+
+data.frame(
+  metric        = c("(none)", "-CC0.5", "-CC0", "-CV", "-I (RMSE)"),
+  tan_package   = unname(tan),   tan_published = published_4a,
+  gmv_package   = unname(gmv),   gmv_published = published_4a_gmv
+)
+```
+
+Every entry matches to the three decimals the paper reports. Panel B of the
+same table is the squared correlation:
+
+```{r}
+data.frame(metric = c("(none)", "-CC0.5", "-CC0", "-CV", "-I (RMSE)"),
+           r2_package   = round(unname(tan)^2, 3),
+           r2_published = c(0.462, 0.194, 0.022, 0.036, 0.012))
+```
+
+For the tangency portfolio, the full RAFE explains **46%** of the variation in
+the Sharpe-ratio gap. RMSE explains **1%**.
+
+```{r}
+op <- par(mfrow = c(1, 2), mar = c(4.3, 4.3, 2.6, 1))
+plot(panel$i, panel$gap_tan, pch = 19, cex = 0.4, col = "#9AA5B1",
+     xlab = "RMSE", ylab = "Sharpe-ratio gap", main = "RMSE (r = 0.11)")
+abline(lm(gap_tan ~ i, panel), col = "firebrick", lwd = 2)
+plot(panel$none, panel$gap_tan, pch = 19, cex = 0.4, col = "#9AA5B1",
+     xlab = "RAFE", ylab = "Sharpe-ratio gap", main = "RAFE (r = 0.68)")
+abline(lm(gap_tan ~ none, panel), col = "#1f4e79", lwd = 2)
 par(op)
 ```
 
-## Checking against the published table
-
-The values above are Panel A of Table 4 in the paper. Reproducing them is the
-sharpest available test that this package implements what was published:
-
 ```{r}
-published <- data.frame(
-  metric = c("(none)", "-CC0.5", "-CC0", "-CV", "-I (RMSE)"),
-  tan = c(0.680, 0.440, 0.149, 0.190, 0.110),
-  gmv = c(0.065, 0.126, 0.049, 0.041, 0.020)
-)
-
-comparison <- data.frame(
-  metric        = published$metric,
-  tan_package   = tbl$tan,
-  tan_published = published$tan,
-  gmv_package   = tbl$gmv,
-  gmv_published = published$gmv
-)
-comparison
-
-c(max_abs_difference = max(abs(c(tbl$tan - published$tan,
-                                 tbl$gmv - published$gmv))))
+op <- par(mar = c(4.5, 4.5, 2.4, 1))
+barplot(rbind(unname(tan), unname(tan)^2), beside = TRUE,
+        names.arg = c("(none)", "-CC0.5", "-CC0", "-CV", "-I (RMSE)"),
+        col = c("#1f4e79", "#4FA3A5"), border = NA, ylim = c(0, 0.8),
+        ylab = "", main = "Tangency: each simplification costs explanatory power")
+legend("topright", c("correlation", "squared correlation"), bty = "n",
+       fill = c("#1f4e79", "#4FA3A5"), border = NA)
+par(op)
 ```
 
-Every entry agrees to the three decimal places the paper reports.
+## Table 5: what the covariance channel adds
 
-The full published analysis covers 13 portfolio strategies and a Monte Carlo
-study of 100,000 paths alongside the empirical results; the replication code is
-at
+T-RAFE adds $SR^{*}\cdot\text{C-RAFE}$ to RAFE. Table 5 reports how much that
+addition changes the correlation with the gap. `compute_trafe()` takes the
+strategy's own perfect-foresight Sharpe ratio through `SR_star`:
+
+```{r}
+delta_cor <- function(prefix, gap) {
+  vapply(variants, function(v) cor(panel[[paste0(prefix, v)]], gap), numeric(1)) -
+    cor_rafe(gap)
+}
+data.frame(
+  metric        = c("(none)", "-CC0.5", "-CC0", "-CV", "-I (RMSE)"),
+  tan_package   = round(unname(delta_cor("T_", panel$gap_tan)), 3),
+  tan_published = c(-0.593, -0.349, -0.066, -0.124, 0.115),
+  gmv_package   = round(unname(delta_cor("G_", panel$gap_gmv)), 3),
+  gmv_published = c(0.561, 0.490, 0.562, 0.572, 0.598)
+)
+```
+
+Matched again, and the pattern is the interesting part. Adding the covariance
+channel **hurts** for the tangency portfolio ($-0.59$) and **helps
+substantially** for minimum variance ($+0.56$).
+
+That is exactly what the decomposition predicts. The tangency gap is driven by
+the mean forecast, so loading a covariance term on top only adds noise. The GMV
+portfolio never sees a mean at all, so its gap is a covariance problem, and the
+covariance channel is what explains it. Each channel accounts for the strategy
+that depends on it — which is the practical case for reporting the
+decomposition rather than a single number.
+
+## The two channels through time
+
+```{r}
+op <- par(mar = c(4.2, 4.4, 2.4, 1))
+plot(panel$date, panel$none, type = "l", lwd = 2, col = "#1f4e79",
+     xlab = "", ylab = "RAFE", main = "Mean-channel error and the tangency gap")
+par(new = TRUE)
+plot(panel$date, panel$gap_tan, type = "l", lwd = 2, col = "#E8A33D",
+     axes = FALSE, xlab = "", ylab = "")
+axis(4); mtext("Sharpe-ratio gap", side = 4, line = -1.4, cex = 0.9)
+legend("topleft", c("RAFE (left)", "Sharpe-ratio gap (right)"), bty = "n",
+       lwd = 2, col = c("#1f4e79", "#E8A33D"))
+par(op)
+```
+
+The two series move together — which is the whole point, and what the 0.68
+correlation measures.
+
+The published analysis covers 13 portfolio strategies and a 100,000-path Monte
+Carlo alongside these empirical results; the replication code is at
 [github.com/sstoeckl/Lost_in_Translation_Replication](https://github.com/sstoeckl/Lost_in_Translation_Replication).
-This vignette reproduces two of those strategies to keep the build fast.
+This vignette reproduces two strategies to keep the build fast.
 
 ## Reference
 
