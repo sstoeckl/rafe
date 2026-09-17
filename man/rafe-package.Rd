@@ -19,20 +19,23 @@ bound on the Sharpe-ratio gap of the plug-in portfolio (T-RAFE).
 
 Two groups of functions:
 \itemize{
-\item \strong{Metrics}: \code{\link[=compute_rafe]{compute_rafe()}}, \code{\link[=compute_crafe]{compute_crafe()}}, \code{\link[=compute_trafe]{compute_trafe()}}.
+\item \strong{Metrics}: \code{\link[=compute_rafe]{compute_rafe()}}, \code{\link[=compute_crafe]{compute_crafe()}}, \code{\link[=compute_trafe]{compute_trafe()}}, and
+\code{\link[=restrict_cov]{restrict_cov()}} for the nested sequence of covariance restrictions that
+reduces RAFE to RMSE.
 \item \strong{Moment correction}: \code{\link[=mu_rafe_stein]{mu_rafe_stein()}} and \code{\link[=sigma_crafe_floor]{sigma_crafe_floor()}} act on
 the two channels of the bound; \code{\link[=sep_tune]{sep_tune()}} and \code{\link[=joint_trafe_tune]{joint_trafe_tune()}}
 select their intensities on an inner-validation split.
 }
 
-Two datasets, \link{ff12} and \link{ff49}, make every example reproducible offline.
+The \link{ff12} dataset, the universe of the published paper, makes every
+example reproducible offline.
 }
 \references{
-Salcher, T., Stöckl, S., & Hanke, M. (2026). Lost in Translation?
+Salcher, L., Stöckl, S., & Hanke, M. (2026). Lost in Translation?
 Risk-Adjusting RMSE for Economic Forecast Performance.
 \emph{Journal of Forecasting}. \doi{10.1002/for.70134}
 
-Stöckl, S., Salcher, T., & Hanke, M. Post-Optimal Moment Correction for
+Stöckl, S., Salcher, L., & Hanke, M. Post-Optimal Moment Correction for
 Mean-Variance Portfolios. Working paper.
 }
 \seealso{
@@ -49,7 +52,7 @@ Useful links:
 
 Authors:
 \itemize{
-  \item Tobias Salcher
+  \item Lukas Salcher
   \item Michael Hanke
 }
 

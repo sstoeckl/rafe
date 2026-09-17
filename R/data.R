@@ -30,8 +30,6 @@
 #'   \item{Other}{Other.}
 #' }
 #'
-#' @seealso [ff49] for the 49-industry universe used in the evaluation vignette.
-#'
 #' @source Kenneth R. French's data library,
 #'   \url{https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html}
 #'
@@ -41,33 +39,3 @@
 #' dim(R)
 #' round(colMeans(R) * 12, 3)   # annualised mean returns
 "ff12"
-
-#' Fama-French 49 Industry Portfolios, Monthly Excess Returns
-#'
-#' Value-weighted monthly excess returns (industry return minus the one-month
-#' risk-free rate) on Kenneth French's 49 industry portfolios, July 1969 to
-#' December 2023. Industries with any missing observation over the window were
-#' dropped by the source preparation; none were, so all 49 survive.
-#'
-#' This is the universe of Salcher, Stöckl & Hanke (2026) and the sample start
-#' matches that paper's replication configuration exactly. It is included so
-#' `vignette("rafe-evaluation")` can reproduce the paper's experiment without a
-#' network connection.
-#'
-#' Dates are stored at month *start* as a labelling convention. Returns are
-#' simple (not log) and expressed as decimals rather than percentages.
-#'
-#' @format A data frame with 654 rows and 50 columns: `date`, plus one column
-#'   of excess returns per industry (`Agric`, `Food`, `Soda`, ... `Other`).
-#'
-#'
-#' @source Kenneth R. French's data library,
-#'   \url{https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html}
-#'
-#' @seealso [ff12] for the 12-industry universe.
-#'
-#' @examples
-#' data(ff49)
-#' dim(ff49)
-#' range(ff49$date)
-"ff49"

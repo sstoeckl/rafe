@@ -17,7 +17,7 @@ Let $\hat w$ be the plug-in mean-variance portfolio built from a forecast $(\hat
 
 $$\Delta \;\le\; c \cdot \underbrace{\lVert \hat\mu - \mu \rVert_{\Sigma^{-1}}}_{\textrm{RAFE}} \;+\; SR^{*} \cdot \underbrace{\lVert \Sigma^{1/2}\hat\Sigma^{-1}\Sigma^{1/2} - I \rVert_{2}}_{\textrm{C-RAFE}}$$
 
-with $c = 1$ when $\textrm{RAFE} \le SR^{*}$ and $c = 2$ otherwise.
+with $c = 1$ when $\textrm{RAFE} \le SR^{*}$ and $c = 2$ otherwise. `compute_trafe()` returns the published total error $\textrm{RAFE} + SR^{*}\cdot\textrm{C-RAFE}$; pass `c = NULL` for the guaranteed bound.
 
 The right-hand side separates cleanly into a **mean channel** and a **covariance channel**. Each is a quantity a practitioner can measure and, as the second half of this package shows, act on.
 
@@ -32,9 +32,9 @@ remotes::install_github("sstoeckl/rafe")
 
 ```r
 library(rafe)
-data(ff49)
+data(ff12)
 
-R     <- as.matrix(ff49[, -1])
+R     <- as.matrix(ff12[, -1])
 train <- R[1:60, ]
 eval  <- R[61:120, ]
 
@@ -64,31 +64,31 @@ Argument order follows the replication code of the published paper, so scripts w
 ## Articles
 
 - [Getting started](https://sstoeckl.github.io/rafe/articles/rafe-getting-started.html) — a short tour of the metrics and correctors.
-- [Evaluating forecasts](https://sstoeckl.github.io/rafe/articles/rafe-evaluation.html) — reproduces the paper's mean-variance experiment on 49 industry portfolios, using forecasts of controlled quality. Root mean squared error falls monotonically as the forecasts improve, while T-RAFE rises: the accuracy gain and the covariance damage arrive together, and only one of them is visible to RMSE.
+- [Evaluating forecasts](https://sstoeckl.github.io/rafe/articles/rafe-evaluation.html) — reproduces Table 4 of the published paper, to all three reported decimals, using only package functions. As the covariance is progressively stripped out of the error measure, its correlation with realised economic loss falls from 0.68 to 0.11. The last step in that sequence is RMSE.
 - [Post-processing forecasts](https://sstoeckl.github.io/rafe/articles/rafe-post-processing.html) — tuning $(\kappa, \tau)$, what correction does to each channel of the bound, and what it does to realised portfolios.
 
 ## Data
 
-Two datasets ship with the package so that every example is reproducible offline: `ff12` and `ff49`, monthly excess returns on Kenneth French's 12 and 49 industry portfolios.
+`ff12` ships with the package: monthly excess returns on Kenneth French's 12 industry portfolios, January 1964 to December 2023 — the sample of the published paper, so the vignettes reproduce its results offline.
 
 ## Reproducibility
 
 The package carries 443 unit tests. Beyond ordinary input and edge-case coverage, three of them check the implementation against theory and against published code rather than against itself:
 
-- At $\Sigma = I$, RAFE collapses to $\sqrt{N}$ times RMSE. The metric carries no $1/N$ normalisation, so the factor is part of the claim.
-- The Sharpe-gap bound holds in every draw of a Monte Carlo study.
-- `compute_rafe()` and `compute_crafe()` agree to nine decimal places with verbatim transcriptions of the published replication code, and C-RAFE matches the closed form implied by that paper's experimental design.
+- **Table 4 of the paper is reproduced to all three reported decimals**, from the raw returns, using only package functions.
+- All ten metric variants agree to nine decimal places with verbatim transcriptions of the published replication code.
+- The Sharpe-gap bound holds in every draw of a Monte Carlo study, and the fully restricted metric equals the paper's RMSE exactly.
 
 ## Citation
 
 For the evaluation framework:
 
-> Salcher, T., Stöckl, S., & Hanke, M. (2026). Lost in Translation? Risk-Adjusting RMSE for Economic Forecast Performance. *Journal of Forecasting*. [doi:10.1002/for.70134](https://doi.org/10.1002/for.70134)
+> Salcher, L., Stöckl, S., & Hanke, M. (2026). Lost in Translation? Risk-Adjusting RMSE for Economic Forecast Performance. *Journal of Forecasting*. [doi:10.1002/for.70134](https://doi.org/10.1002/for.70134)
 
 For the moment-correction estimators:
 
-> Stöckl, S., Salcher, T., & Hanke, M. Post-Optimal Moment Correction for Mean-Variance Portfolios. Working paper.
+> Stöckl, S., Salcher, L., & Hanke, M. Post-Optimal Moment Correction for Mean-Variance Portfolios. Working paper.
 
 ## License
 
-MIT © Sebastian Stöckl, Tobias Salcher, Michael Hanke
+MIT © Sebastian Stöckl, Lukas Salcher, Michael Hanke

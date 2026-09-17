@@ -29,8 +29,8 @@ First public release.
 
 ## Data
 
-* `ff12` and `ff49`: monthly excess returns on the Fama-French 12 and 49
-  industry portfolios.
+* `ff12`: monthly excess returns on the Fama-French 12 industry portfolios,
+  January 1964 to December 2023 — the sample of the published paper.
 
 ## Vignettes
 

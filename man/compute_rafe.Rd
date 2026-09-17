@@ -4,7 +4,13 @@
 \alias{compute_rafe}
 \title{Risk-Adjusted Forecast Error (RAFE)}
 \usage{
-compute_rafe(mu_hat, mu, Sigma = NULL, Sigma_inv = NULL)
+compute_rafe(
+  mu_hat,
+  mu,
+  Sigma = NULL,
+  Sigma_inv = NULL,
+  variant = c("none", "cc05", "cc0", "cv", "i")
+)
 }
 \arguments{
 \item{mu_hat}{Numeric vector of forecast means.}
@@ -17,7 +23,10 @@ same thing here as it does there.}
 
 \item{Sigma_inv}{Optional precision matrix, supplied instead of \code{Sigma} when
 it is already available (it avoids an inversion). Must be a \emph{precision},
-not a covariance.}
+not a covariance. Ignored unless \code{variant} is \code{"none"}.}
+
+\item{variant}{Covariance restriction from the nested sequence of
+Section 3.3; see \code{\link[=restrict_cov]{restrict_cov()}}. \code{"i"} returns the paper's RMSE.}
 }
 \value{
 A length-1 numeric.
@@ -44,7 +53,7 @@ sqrt(5) * sqrt(mean((mu_hat - mu)^2))
 
 }
 \references{
-Salcher, T., Stöckl, S., & Hanke, M. (2026). Lost in Translation?
+Salcher, L., Stöckl, S., & Hanke, M. (2026). Lost in Translation?
 Risk-Adjusting RMSE for Economic Forecast Performance.
 \emph{Journal of Forecasting}. doi:10.1002/for.70134
 }

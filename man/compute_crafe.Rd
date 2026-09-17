@@ -4,12 +4,15 @@
 \alias{compute_crafe}
 \title{Covariance Forecast Error (C-RAFE)}
 \usage{
-compute_crafe(Sigma, Sigma_hat)
+compute_crafe(Sigma, Sigma_hat, variant = c("none", "cc05", "cc0", "cv", "i"))
 }
 \arguments{
 \item{Sigma}{Realised covariance matrix.}
 
 \item{Sigma_hat}{Forecast covariance matrix.}
+
+\item{variant}{Covariance restriction applied to \code{Sigma}, from the nested
+sequence of Section 3.3; see \code{\link[=restrict_cov]{restrict_cov()}}.}
 }
 \value{
 A length-1 numeric.
@@ -35,15 +38,12 @@ Sigma <- diag(c(1, 2, 3))
 compute_crafe(Sigma, Sigma)          # exactly 0
 compute_crafe(Sigma, 2 * Sigma)      # forecast covariance twice too large
 
-# Under the lambda-contamination design of Salcher, Stoeckl & Hanke (2026),
-# and C-RAFE has a closed form:
-lambda <- 0.05
-c(computed  = compute_crafe(Sigma, (1 - lambda)^2 * Sigma),
-  closedform = abs(1 / (1 - lambda)^2 - 1))
+# Variants from the nested sequence of Section 3.3:
+compute_crafe(Sigma, 2 * Sigma, variant = "cc0")
 
 }
 \references{
-Salcher, T., Stöckl, S., & Hanke, M. (2026). Lost in Translation?
+Salcher, L., Stöckl, S., & Hanke, M. (2026). Lost in Translation?
 Risk-Adjusting RMSE for Economic Forecast Performance.
 \emph{Journal of Forecasting}. doi:10.1002/for.70134
 }

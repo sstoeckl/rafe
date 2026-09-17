@@ -65,6 +65,6 @@ mu_rafe_stein(mu_hat, Sigma_hat, kappa = 0.5)
 
 }
 \references{
-Stöckl, S., Salcher, T., & Hanke, M. Post-Optimal Moment Correction for
+Stöckl, S., Salcher, L., & Hanke, M. Post-Optimal Moment Correction for
 Mean-Variance Portfolios. Working paper.
 }

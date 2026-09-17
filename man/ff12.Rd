@@ -50,7 +50,4 @@ R <- as.matrix(ff12[, -1])
 dim(R)
 round(colMeans(R) * 12, 3)   # annualised mean returns
 }
-\seealso{
-\link{ff49} for the 49-industry universe used in the evaluation vignette.
-}
 \keyword{datasets}

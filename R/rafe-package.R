@@ -12,19 +12,22 @@
 #'
 #' Two groups of functions:
 #'
-#' - **Metrics**: [compute_rafe()], [compute_crafe()], [compute_trafe()].
+#' - **Metrics**: [compute_rafe()], [compute_crafe()], [compute_trafe()], and
+#'   [restrict_cov()] for the nested sequence of covariance restrictions that
+#'   reduces RAFE to RMSE.
 #' - **Moment correction**: [mu_rafe_stein()] and [sigma_crafe_floor()] act on
 #'   the two channels of the bound; [sep_tune()] and [joint_trafe_tune()]
 #'   select their intensities on an inner-validation split.
 #'
-#' Two datasets, [ff12] and [ff49], make every example reproducible offline.
+#' The [ff12] dataset, the universe of the published paper, makes every
+#' example reproducible offline.
 #'
 #' @references
-#'   Salcher, T., Stöckl, S., & Hanke, M. (2026). Lost in Translation?
+#'   Salcher, L., Stöckl, S., & Hanke, M. (2026). Lost in Translation?
 #'   Risk-Adjusting RMSE for Economic Forecast Performance.
 #'   *Journal of Forecasting*. \doi{10.1002/for.70134}
 #'
-#'   Stöckl, S., Salcher, T., & Hanke, M. Post-Optimal Moment Correction for
+#'   Stöckl, S., Salcher, L., & Hanke, M. Post-Optimal Moment Correction for
 #'   Mean-Variance Portfolios. Working paper.
 #'
 #' @keywords internal

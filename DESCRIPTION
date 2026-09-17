@@ -5,7 +5,7 @@ Version: 0.1.0
 Authors@R: c(
     person("Sebastian", "Stöckl", email = "sebastian.stoeckl@uni.li",
            role = c("aut", "cre")),
-    person("Tobias", "Salcher", role = "aut"),
+    person("Lukas", "Salcher", role = "aut"),
     person("Michael", "Hanke", role = "aut")
     )
 Description: Evaluates return forecasts by the economic damage their errors

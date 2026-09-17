@@ -50,7 +50,7 @@ fit$tau_rel
 
 }
 \references{
-Stöckl, S., Salcher, T., & Hanke, M. Post-Optimal Moment Correction for
+Stöckl, S., Salcher, L., & Hanke, M. Post-Optimal Moment Correction for
 Mean-Variance Portfolios. Working paper.
 }
 \seealso{

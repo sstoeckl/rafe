@@ -4,7 +4,15 @@
 \alias{compute_trafe}
 \title{Total RAFE (T-RAFE) — Sharpe-Gap Upper Bound}
 \usage{
-compute_trafe(mu_hat, mu, Sigma, Sigma_hat, c = NULL, SR_star = NULL)
+compute_trafe(
+  mu_hat,
+  mu,
+  Sigma,
+  Sigma_hat,
+  c = 1,
+  SR_star = NULL,
+  variant = c("none", "cc05", "cc0", "cv", "i")
+)
 }
 \arguments{
 \item{mu_hat}{Numeric vector of forecast means.}
@@ -17,14 +25,18 @@ same thing here as it does there.}
 
 \item{Sigma_hat}{Forecast covariance matrix.}
 
-\item{c}{Scalar weighting for RAFE. If \code{NULL} (default), the theorem's rule
-is applied: 1 if \code{RAFE <= SR_star}, else 2. The published replication
-code computes \verb{RAFE + |SR*| * C-RAFE}, i.e. a fixed \code{c = 1}; pass
-\code{c = 1} to reproduce those numbers exactly.}
+\item{c}{Scalar weighting for the mean channel. Defaults to 1, the
+published definition of T-RAFE in Equation (22). Set \code{c = NULL} to apply
+the data-dependent rule of Equation (4) (1 if \code{RAFE <= SR_star}, else 2),
+which yields a guaranteed upper bound on the Sharpe-ratio gap.}
 
 \item{SR_star}{Optional oracle Sharpe ratio. If \code{NULL}, computed as
 \eqn{\sqrt{\mu^\top \Sigma^{-1} \mu}} from \code{mu} and \code{Sigma_inv} (or
 \code{Sigma}).}
+
+\item{variant}{Covariance restriction applied to both channels; see
+\code{\link[=restrict_cov]{restrict_cov()}}. \code{SR_star} is always computed from the unrestricted
+\code{Sigma}, matching the published tables.}
 }
 \value{
 A length-1 numeric, carrying the components as attributes \code{rafe},
@@ -36,12 +48,15 @@ Combines RAFE and C-RAFE into the upper bound on the Sharpe-ratio gap
 \eqn{\Delta \le c \cdot \mathrm{RAFE} + SR^{*} \cdot \mathrm{C\text{-}RAFE}}.
 }
 \details{
-Salcher, Stöckl & Hanke (2026) prove the bound with a \emph{data-dependent}
-constant: \eqn{c = 1} when \eqn{\mathrm{RAFE} \le SR^{*}}, and \eqn{c = 2}
-otherwise. This is the default (\code{c = NULL}). Passing a fixed numeric \code{c}
-overrides the rule and is intended for diagnostics only — in particular,
-\code{c = 1} does \strong{not} yield a valid upper bound in the regime
-\eqn{\mathrm{RAFE} > SR^{*}}.
+Equation (22) of Salcher, Stöckl & Hanke (2026) defines T-RAFE with no
+constant on the mean channel, i.e. \eqn{c = 1}, and that is the default
+here so that \code{compute_trafe()} returns the published metric.
+
+Equation (4) of the same paper gives the \emph{bound}, which carries a
+data-dependent constant: \eqn{c = 1} when \eqn{\mathrm{RAFE} \le SR^{*}}
+and \eqn{c = 2} otherwise. Pass \code{c = NULL} to apply that rule and obtain a
+quantity guaranteed to dominate the Sharpe-ratio gap. The two coincide
+whenever \eqn{\mathrm{RAFE} \le SR^{*}}.
 }
 \examples{
 set.seed(1)
@@ -56,7 +71,7 @@ attributes(tr)[c("rafe", "crafe", "c", "SR_star")]
 
 }
 \references{
-Salcher, T., Stöckl, S., & Hanke, M. (2026). Lost in Translation?
+Salcher, L., Stöckl, S., & Hanke, M. (2026). Lost in Translation?
 Risk-Adjusting RMSE for Economic Forecast Performance.
 \emph{Journal of Forecasting}. doi:10.1002/for.70134
 }

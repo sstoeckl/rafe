@@ -1,3 +1,51 @@
+#' Restricted Covariance Matrices for the Nested Metric Sequence
+#'
+#' Applies the sequence of simplifying assumptions of Salcher, Stöckl & Hanke
+#' (2026, Section 3.3) to a covariance matrix. Imposing them one after another
+#' turns the risk-adjusted forecast error into the ordinary root mean squared
+#' error, which is how the paper frames RMSE as a severely restricted special
+#' case of RAFE.
+#'
+#' \describe{
+#'   \item{`"none"`}{The covariance is left alone: the full RAFE.}
+#'   \item{`"cc05"`}{All pairwise correlations replaced by
+#'     \eqn{\rho = 0.5}, variances kept — Equation (17).}
+#'   \item{`"cc0"`}{All correlations set to zero, variances kept; the
+#'     covariance becomes diagonal.}
+#'   \item{`"cv"`}{Correlations zero and all variances set to the average
+#'     variance of `Sigma`.}
+#'   \item{`"i"`}{Correlations zero and all variances set to one, giving the
+#'     identity. With this restriction the mean error is the RMSE of the paper,
+#'     \eqn{\lVert\hat\mu - \mu\rVert_2}.}
+#' }
+#'
+#' @param Sigma A covariance matrix.
+#' @param variant One of `"none"`, `"cc05"`, `"cc0"`, `"cv"`, `"i"`.
+#'
+#' @return A covariance matrix of the same dimension as `Sigma`.
+#'
+#' @examples
+#' set.seed(1)
+#' Sigma <- stats::cov(matrix(rnorm(200), 40, 5))
+#' round(stats::cov2cor(restrict_cov(Sigma, "cc05")), 3)   # all rho = 0.5
+#' restrict_cov(Sigma, "i")                                # identity
+#'
+#' @inherit compute_rafe references
+#' @export
+restrict_cov <- function(Sigma, variant = c("none", "cc05", "cc0", "cv", "i")) {
+  variant <- match.arg(variant)
+  Sigma <- .check_mat(Sigma, NULL, "Sigma")
+  n <- nrow(Sigma)
+  if (variant == "none") return(.as_sym(Sigma))
+  if (variant == "i")    return(diag(1, n))
+  if (variant == "cv")   return(diag(mean(diag(Sigma)), n))
+  sd_vec <- sqrt(diag(Sigma))
+  rho <- if (variant == "cc05") 0.5 else 0
+  R <- matrix(rho, n, n); diag(R) <- 1
+  D <- diag(sd_vec, n)
+  .as_sym(D %*% R %*% D)
+}
+
 #' Risk-Adjusted Forecast Error (RAFE)
 #'
 #' Computes \eqn{\mathrm{RAFE} = \sqrt{(\hat\mu - \mu)^\top \Sigma^{-1} (\hat\mu - \mu)}},
@@ -15,7 +63,9 @@
 #'   same thing here as it does there.
 #' @param Sigma_inv Optional precision matrix, supplied instead of `Sigma` when
 #'   it is already available (it avoids an inversion). Must be a *precision*,
-#'   not a covariance.
+#'   not a covariance. Ignored unless `variant` is `"none"`.
+#' @param variant Covariance restriction from the nested sequence of
+#'   Section 3.3; see [restrict_cov()]. `"i"` returns the paper's RMSE.
 #'
 #' @return A length-1 numeric.
 #'
@@ -30,16 +80,26 @@
 #' sqrt(5) * sqrt(mean((mu_hat - mu)^2))
 #'
 #' @references
-#'   Salcher, T., Stöckl, S., & Hanke, M. (2026). Lost in Translation?
+#'   Salcher, L., Stöckl, S., & Hanke, M. (2026). Lost in Translation?
 #'   Risk-Adjusting RMSE for Economic Forecast Performance.
 #'   *Journal of Forecasting*. doi:10.1002/for.70134
 #' @export
-compute_rafe <- function(mu_hat, mu, Sigma = NULL, Sigma_inv = NULL) {
+compute_rafe <- function(mu_hat, mu, Sigma = NULL, Sigma_inv = NULL,
+                         variant = c("none", "cc05", "cc0", "cv", "i")) {
+  variant <- match.arg(variant)
   mu_hat <- .check_vec(mu_hat, "mu_hat")
   mu     <- .check_vec(mu, "mu")
   if (length(mu_hat) != length(mu)) {
     stop("`mu_hat` and `mu` must have the same length; got ",
          length(mu_hat), " and ", length(mu), ".", call. = FALSE)
+  }
+  if (variant != "none") {
+    if (is.null(Sigma)) {
+      stop("`Sigma` is required when `variant` is not \"none\"; the ",
+           "restriction is applied to the covariance itself.", call. = FALSE)
+    }
+    Sigma <- restrict_cov(.check_mat(Sigma, length(mu), "Sigma"), variant)
+    Sigma_inv <- NULL
   }
   Sinv <- .resolve_precision(Sigma_inv, Sigma, length(mu))
   d <- mu_hat - mu
@@ -59,6 +119,8 @@ compute_rafe <- function(mu_hat, mu, Sigma = NULL, Sigma_inv = NULL) {
 #'
 #' @param Sigma Realised covariance matrix.
 #' @param Sigma_hat Forecast covariance matrix.
+#' @param variant Covariance restriction applied to `Sigma`, from the nested
+#'   sequence of Section 3.3; see [restrict_cov()].
 #'
 #' @return A length-1 numeric.
 #'
@@ -73,17 +135,17 @@ compute_rafe <- function(mu_hat, mu, Sigma = NULL, Sigma_inv = NULL) {
 #' compute_crafe(Sigma, Sigma)          # exactly 0
 #' compute_crafe(Sigma, 2 * Sigma)      # forecast covariance twice too large
 #'
-#' # Under the lambda-contamination design of Salcher, Stoeckl & Hanke (2026),
-#' # and C-RAFE has a closed form:
-#' lambda <- 0.05
-#' c(computed  = compute_crafe(Sigma, (1 - lambda)^2 * Sigma),
-#'   closedform = abs(1 / (1 - lambda)^2 - 1))
+#' # Variants from the nested sequence of Section 3.3:
+#' compute_crafe(Sigma, 2 * Sigma, variant = "cc0")
 #'
 #' @inherit compute_rafe references
 #' @export
-compute_crafe <- function(Sigma, Sigma_hat) {
+compute_crafe <- function(Sigma, Sigma_hat,
+                          variant = c("none", "cc05", "cc0", "cv", "i")) {
+  variant <- match.arg(variant)
   Sigma     <- .check_mat(Sigma, NULL, "Sigma")
   Sigma_hat <- .check_mat(Sigma_hat, nrow(Sigma), "Sigma_hat")
+  Sigma <- restrict_cov(Sigma, variant)
   Ssq  <- .sqrtm_sym(Sigma)
   Sinv <- .pd_inverse(Sigma_hat)
   M <- Ssq %*% Sinv %*% Ssq - diag(1, nrow(Sigma))
@@ -96,19 +158,25 @@ compute_crafe <- function(Sigma, Sigma_hat) {
 #' \eqn{\Delta = SR^{*} - SR(\hat w)} of a plug-in mean-variance portfolio:
 #' \eqn{\Delta \le c \cdot \mathrm{RAFE} + SR^{*} \cdot \mathrm{C\text{-}RAFE}}.
 #'
-#' Salcher, Stöckl & Hanke (2026) prove the bound with a *data-dependent*
-#' constant: \eqn{c = 1} when \eqn{\mathrm{RAFE} \le SR^{*}}, and \eqn{c = 2}
-#' otherwise. This is the default (`c = NULL`). Passing a fixed numeric `c`
-#' overrides the rule and is intended for diagnostics only — in particular,
-#' `c = 1` does **not** yield a valid upper bound in the regime
-#' \eqn{\mathrm{RAFE} > SR^{*}}.
+#' Equation (22) of Salcher, Stöckl & Hanke (2026) defines T-RAFE with no
+#' constant on the mean channel, i.e. \eqn{c = 1}, and that is the default
+#' here so that `compute_trafe()` returns the published metric.
+#'
+#' Equation (4) of the same paper gives the *bound*, which carries a
+#' data-dependent constant: \eqn{c = 1} when \eqn{\mathrm{RAFE} \le SR^{*}}
+#' and \eqn{c = 2} otherwise. Pass `c = NULL` to apply that rule and obtain a
+#' quantity guaranteed to dominate the Sharpe-ratio gap. The two coincide
+#' whenever \eqn{\mathrm{RAFE} \le SR^{*}}.
 #'
 #' @inheritParams compute_rafe
 #' @inheritParams compute_crafe
-#' @param c Scalar weighting for RAFE. If `NULL` (default), the theorem's rule
-#'   is applied: 1 if `RAFE <= SR_star`, else 2. The published replication
-#'   code computes `RAFE + |SR*| * C-RAFE`, i.e. a fixed `c = 1`; pass
-#'   `c = 1` to reproduce those numbers exactly.
+#' @param c Scalar weighting for the mean channel. Defaults to 1, the
+#'   published definition of T-RAFE in Equation (22). Set `c = NULL` to apply
+#'   the data-dependent rule of Equation (4) (1 if `RAFE <= SR_star`, else 2),
+#'   which yields a guaranteed upper bound on the Sharpe-ratio gap.
+#' @param variant Covariance restriction applied to both channels; see
+#'   [restrict_cov()]. `SR_star` is always computed from the unrestricted
+#'   `Sigma`, matching the published tables.
 #' @param SR_star Optional oracle Sharpe ratio. If `NULL`, computed as
 #'   \eqn{\sqrt{\mu^\top \Sigma^{-1} \mu}} from `mu` and `Sigma_inv` (or
 #'   `Sigma`).
@@ -129,8 +197,8 @@ compute_crafe <- function(Sigma, Sigma_hat) {
 #'
 #' @inherit compute_rafe references
 #' @export
-compute_trafe <- function(mu_hat, mu, Sigma, Sigma_hat, c = NULL,
-                          SR_star = NULL) {
+compute_trafe <- function(mu_hat, mu, Sigma, Sigma_hat, c = 1,
+                          SR_star = NULL, variant = c("none", "cc05", "cc0", "cv", "i")) {
   mu_hat <- .check_vec(mu_hat, "mu_hat")
   mu     <- .check_vec(mu, "mu")
   if (length(mu_hat) != length(mu)) {
@@ -141,9 +209,10 @@ compute_trafe <- function(mu_hat, mu, Sigma, Sigma_hat, c = NULL,
   Sigma     <- .check_mat(Sigma, n, "Sigma")
   Sigma_hat <- .check_mat(Sigma_hat, n, "Sigma_hat")
 
+  variant <- match.arg(variant)
   Sinv <- .pd_inverse(Sigma)
-  rafe  <- compute_rafe(mu_hat, mu, Sigma_inv = Sinv)
-  crafe <- compute_crafe(Sigma, Sigma_hat)
+  rafe  <- compute_rafe(mu_hat, mu, Sigma = Sigma, variant = variant)
+  crafe <- compute_crafe(Sigma, Sigma_hat, variant = variant)
 
   if (is.null(SR_star)) {
     SR_star <- sqrt(max(as.numeric(crossprod(mu, Sinv %*% mu)), 0))

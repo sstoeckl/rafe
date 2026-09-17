@@ -225,9 +225,9 @@ the package will not do it silently.
 
 ## References
 
-Salcher, T., Stöckl, S., & Hanke, M. (2026). Lost in Translation?
+Salcher, L., Stöckl, S., & Hanke, M. (2026). Lost in Translation?
 Risk-Adjusting RMSE for Economic Forecast Performance. *Journal of Forecasting*.
 \doi{10.1002/for.70134}
 
-Stöckl, S., Salcher, T., & Hanke, M. Post-Optimal Moment Correction for
+Stöckl, S., Salcher, L., & Hanke, M. Post-Optimal Moment Correction for
 Mean-Variance Portfolios. Working paper.

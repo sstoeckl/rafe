@@ -68,7 +68,20 @@ test_that("compute_crafe matches the operator-norm definition directly", {
   expect_equal(compute_crafe(S, S_hat), max(svd(M)$d), tolerance = 1e-10)
 })
 
-test_that("compute_trafe applies the theorem's data-dependent c", {
+test_that("compute_trafe defaults to c = 1, the published T-RAFE", {
+  set.seed(15)
+  n <- 4
+  S <- diag(n)
+  mu <- rep(1e-4, n)
+  mu_hat <- mu + rep(1, n)   # RAFE far above SR*, where the rule gives 2
+  tr <- compute_trafe(mu_hat, mu, S, S)
+  expect_equal(attr(tr, "c"), 1)
+  expect_equal(as.numeric(tr),
+               attr(tr, "rafe") + attr(tr, "SR_star") * attr(tr, "crafe"),
+               tolerance = 1e-12)
+})
+
+test_that("c = NULL applies the bound's data-dependent constant", {
   set.seed(15)
   n <- 4
   S <- diag(n)
@@ -76,14 +89,14 @@ test_that("compute_trafe applies the theorem's data-dependent c", {
   # Tiny mean error relative to SR*: the rule must select c = 1.
   mu_big  <- rep(1, n)
   mu_hat1 <- mu_big + rep(1e-4, n)
-  t1 <- compute_trafe(mu_hat1, mu_big, S, S)
+  t1 <- compute_trafe(mu_hat1, mu_big, S, S, c = NULL)
   expect_lte(attr(t1, "rafe"), attr(t1, "SR_star"))
   expect_equal(attr(t1, "c"), 1)
 
   # Large mean error relative to SR*: the rule must select c = 2.
   mu_small <- rep(1e-4, n)
   mu_hat2  <- mu_small + rep(1, n)
-  t2 <- compute_trafe(mu_hat2, mu_small, S, S)
+  t2 <- compute_trafe(mu_hat2, mu_small, S, S, c = NULL)
   expect_gt(attr(t2, "rafe"), attr(t2, "SR_star"))
   expect_equal(attr(t2, "c"), 2)
 })

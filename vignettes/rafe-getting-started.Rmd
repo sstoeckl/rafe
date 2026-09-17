@@ -50,15 +50,29 @@ compute_rafe(mu_hat, mu, Sigma = Sigma)
 compute_crafe(Sigma, Sigma_hat)
 ```
 
-`compute_trafe()` combines them, applying the theorem's data-dependent constant
-($c = 1$ if $\mathrm{RAFE} \le SR^{*}$, else $c = 2$) and returning the
-decomposition as attributes:
+`compute_trafe()` combines them into the paper's total error and returns the
+decomposition as attributes. Pass `c = NULL` for the guaranteed upper bound,
+which carries a data-dependent constant ($c = 1$ if $\mathrm{RAFE} \le SR^{*}$,
+else $c = 2$):
 
 ```{r}
 bound <- compute_trafe(mu_hat, mu, Sigma, Sigma_hat)
 bound
 unlist(attributes(bound))
 ```
+
+## From RAFE down to RMSE
+
+The paper's framing is that RMSE is RAFE after the covariance has been stripped
+of everything that makes it informative. `restrict_cov()` performs that sequence
+and every metric takes a matching `variant`:
+
+```{r}
+vapply(c("none", "cc05", "cc0", "cv", "i"),
+       function(v) compute_rafe(mu_hat, mu, Sigma, variant = v), numeric(1))
+```
+
+The last entry is the RMSE of the paper, $\lVert\hat\mu - \mu\rVert_2$.
 
 ## The correctors
 
@@ -79,16 +93,15 @@ c(rafe_before  = compute_rafe(mu_hat, mu, Sigma = Sigma),
 
 ## Where to go next
 
-- `vignette("rafe-evaluation", package = "rafe")` — the published
-  mean-variance experiment on 49 industry portfolios, using forecasts of
-  controlled quality: RMSE and T-RAFE reach opposite verdicts on the same
-  forecasts.
+- `vignette("rafe-evaluation", package = "rafe")` — reproduces Table 4 of the
+  published paper from the raw returns, and shows how much explanatory power
+  each simplification of the covariance costs on the way down to RMSE.
 - `vignette("rafe-post-processing", package = "rafe")` — correcting moments
   you were handed: tuning $(\kappa, \tau)$, what the correction does to both
   channels of the bound, and what it does to portfolios.
 
 ## References
 
-Salcher, T., Stöckl, S., & Hanke, M. (2026). Lost in Translation?
+Salcher, L., Stöckl, S., & Hanke, M. (2026). Lost in Translation?
 Risk-Adjusting RMSE for Economic Forecast Performance. *Journal of Forecasting*.
 \doi{10.1002/for.70134}
