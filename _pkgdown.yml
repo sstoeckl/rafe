@@ -1,0 +1,64 @@
+url: https://www.sebastianstoeckl.com/rafe/
+
+template:
+  bootstrap: 5
+  bootswatch: spacelab
+
+home:
+  title: Decision-aligned forecast evaluation and moment correction
+  description: >
+    Risk-adjusted forecast errors (RAFE), covariance forecast errors (C-RAFE)
+    and the combined upper bound on the Sharpe-ratio gap (T-RAFE) of plug-in
+    mean-variance portfolios, plus decision-aligned moment-correction
+    estimators.
+
+navbar:
+  bg: primary
+  structure:
+    left:  [intro, reference, articles, news]
+    right: [search, github]
+
+reference:
+- title: Metrics
+  desc: >
+    Score a forecast by the damage its errors do to a mean-variance decision.
+    Argument order matches the replication code of Salcher, Stöckl & Hanke
+    (2026).
+  contents:
+  - compute_rafe
+  - compute_crafe
+  - compute_trafe
+  - restrict_cov
+
+- title: Moment correction
+  desc: >
+    Correct forecast moments you were handed, before they reach the optimiser.
+  contents:
+  - mu_rafe_stein
+  - sigma_crafe_floor
+
+- title: Tuning
+  desc: >
+    Choose the shrinkage intensity and eigenvalue floor on an inner-validation
+    split.
+  contents:
+  - sep_tune
+  - joint_trafe_tune
+
+- title: Data
+  desc: >
+    The Fama-French industry portfolios of the published paper.
+  contents:
+  - ff12
+
+- title: Package
+  contents:
+  - rafe-package
+
+articles:
+- title: Vignettes
+  navbar: ~
+  contents:
+  - rafe-getting-started
+  - rafe-evaluation
+  - rafe-post-processing

@@ -1,0 +1,13 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^\.gitignore$
+^\.git$
+^README\.Rmd$
+^docs$
+^_pkgdown\.yml$
+^\.github$
+^CLAUDE\.md$
+^cran-comments\.md$
+^LICENSE\.md$
+^pkgdown$
+^CITATION\.cff$
