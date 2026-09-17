@@ -35,7 +35,7 @@ Sigma <- diag(c(1, 2, 3))
 compute_crafe(Sigma, Sigma)          # exactly 0
 compute_crafe(Sigma, 2 * Sigma)      # forecast covariance twice too large
 
-# Under the paper's lambda-contamination scheme, Sigma_hat = (1-lambda)^2 Sigma
+# Under the lambda-contamination design of Salcher, Stoeckl & Hanke (2026),
 # and C-RAFE has a closed form:
 lambda <- 0.05
 c(computed  = compute_crafe(Sigma, (1 - lambda)^2 * Sigma),

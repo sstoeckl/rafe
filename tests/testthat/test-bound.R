@@ -102,7 +102,7 @@ test_that("both branches of the constant c are exercised by random draws", {
 })
 
 # ---------------------------------------------------------------------------
-# Agreement with the Part 1 replication code
+# Agreement with the published replication code
 # (github.com/sstoeckl/Lost_in_Translation_Replication, code/00_setup.R)
 # ---------------------------------------------------------------------------
 

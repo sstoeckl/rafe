@@ -169,7 +169,7 @@ test_that("joint_trafe_tune reports the cell that actually minimises the grid", 
 })
 
 test_that("the sequential and joint searches select comparable kappa", {
-  # Paper A's separability claim: the two channels tune independently, so the
+  # Separability: the two channels tune independently, so the
   # sequential search should land close to the joint one on the mean channel.
   set.seed(43)
   R <- matrix(rnorm(90 * 8, mean = 0.007, sd = 0.05), 90, 8)

@@ -79,15 +79,13 @@ c(rafe_before  = compute_rafe(mu_hat, mu, Sigma = Sigma),
 
 ## Where to go next
 
-- `vignette("rafe-evaluation", package = "rafe")` — the Part 1 evaluation
-  example on the Fama-French 12 industries: does the bound hold, and does RAFE
-  track economic loss where RMSE does not?
-- `vignette("rafe-post-processing", package = "rafe")` — the Paper A
-  post-processing example: tuning $(\kappa, \tau)$, what the correction does to
-  both channels, and what it does to portfolios.
-
-Training-loss objectives for XGBoost and torch (Paper B's lane) are not part of
-this release.
+- `vignette("rafe-evaluation", package = "rafe")` — the published
+  mean-variance experiment on 49 industry portfolios, using forecasts of
+  controlled quality: RMSE and T-RAFE reach opposite verdicts on the same
+  forecasts.
+- `vignette("rafe-post-processing", package = "rafe")` — correcting moments
+  you were handed: tuning $(\kappa, \tau)$, what the correction does to both
+  channels of the bound, and what it does to portfolios.
 
 ## References
 

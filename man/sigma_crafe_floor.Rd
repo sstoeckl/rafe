@@ -37,6 +37,6 @@ eigen(sigma_crafe_floor(Sigma_hat, 0.3), only.values = TRUE)$values
 
 }
 \references{
-Stöckl, S., Salcher, T., & Hanke, M. (2026/27, working). Post-Optimal
-Moment Correction for Mean-Variance Portfolios.
+Stöckl, S., Salcher, T., & Hanke, M. Post-Optimal Moment Correction for
+Mean-Variance Portfolios. Working paper.
 }

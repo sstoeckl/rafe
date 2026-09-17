@@ -27,7 +27,8 @@ metric (RAFE) and a covariance distortion measured in the operator norm
 The premise is that you have already been handed $(\hat\mu, \hat\Sigma)$ — from
 a sample estimate, a vendor model, a machine-learning pipeline — and you cannot
 retrain it. What you *can* do is correct the moments before they reach the
-optimiser. That is the subject of Paper A.
+optimiser. That is the subject of the moment-correction working paper cited
+below.
 
 ## The two atomic correctors
 
@@ -70,8 +71,8 @@ c(condition_raw = max(lam_raw) / min(lam_raw),
 ## Choosing $\kappa$ and $\tau$ from data
 
 Neither intensity should be picked by hand. Both tuners split the training
-window into an inner-training and an inner-validation block (Paper A's default
-is 40 + 20 months), fit on the first and score on the second.
+window into an inner-training and an inner-validation block (40 + 20 months by
+default), fit on the first and score on the second.
 
 They differ in *what* they score. `sep_tune()` tunes each parameter against its
 own channel — $\kappa$ on inner-validation RAFE, $\tau$ on inner-validation
@@ -183,10 +184,11 @@ per unit of risk.
 
 **And equal weighting still beats both**, at about 0.46. That is not a bug in
 the vignette, and it is worth stating plainly: on a 12-asset industry universe
-with unconstrained weights, `1/N` is a famously hard benchmark. Paper A's claims
-rest on a different and much more careful design -- larger cross-sections,
-non-overlapping inference, and comparison against Ledoit-Wolf and QIS rather
-than against a raw plug-in. Nothing here reproduces them; see the papers.
+with unconstrained weights, `1/N` is a famously hard benchmark. The working
+paper's claims rest on a different and much more careful design -- larger
+cross-sections, non-overlapping inference, and comparison against Ledoit-Wolf
+and nonlinear shrinkage rather than against a raw plug-in. Nothing here
+reproduces them; see the paper.
 
 ## The separability claim
 
@@ -201,14 +203,14 @@ c(kappa_agree = mean(pars[, "k_sep"] == pars[, "k_jnt"]),
 round(rbind(kappa = summary(pars[, "k_sep"]), tau = summary(pars[, "t_sep"])), 3)
 ```
 
-That is the practical content of the separability claim in Paper A: the bound's
+That is the practical content of the separability claim: the bound's
 two channels can be tuned independently without loss, which turns a
 two-dimensional grid search into two one-dimensional ones. If you are tuning on
 a large cross-section, prefer `sep_tune()` — it is the cheaper of the two and,
 here, selects identically.
 
-One caveat on the grid. Paper A admits relative floors on `[0, 0.5]`, and that
-is the package default. On this universe the selected $\tau$ sits on the upper
+One caveat on the grid. Relative floors are admitted on `[0, 0.5]`, which is
+the package default. On this universe the selected $\tau$ sits on the upper
 edge of that range in well over half the rebalances:
 
 ```{r}
@@ -227,5 +229,5 @@ Salcher, T., Stöckl, S., & Hanke, M. (2026). Lost in Translation?
 Risk-Adjusting RMSE for Economic Forecast Performance. *Journal of Forecasting*.
 \doi{10.1002/for.70134}
 
-Stöckl, S., Salcher, T., & Hanke, M. (2026/27, working). Post-Optimal Moment
-Correction for Mean-Variance Portfolios.
+Stöckl, S., Salcher, T., & Hanke, M. Post-Optimal Moment Correction for
+Mean-Variance Portfolios. Working paper.

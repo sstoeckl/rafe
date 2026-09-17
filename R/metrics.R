@@ -73,7 +73,7 @@ compute_rafe <- function(mu_hat, mu, Sigma = NULL, Sigma_inv = NULL) {
 #' compute_crafe(Sigma, Sigma)          # exactly 0
 #' compute_crafe(Sigma, 2 * Sigma)      # forecast covariance twice too large
 #'
-#' # Under the paper's lambda-contamination scheme, Sigma_hat = (1-lambda)^2 Sigma
+#' # Under the lambda-contamination design of Salcher, Stoeckl & Hanke (2026),
 #' # and C-RAFE has a closed form:
 #' lambda <- 0.05
 #' c(computed  = compute_crafe(Sigma, (1 - lambda)^2 * Sigma),
@@ -106,9 +106,9 @@ compute_crafe <- function(Sigma, Sigma_hat) {
 #' @inheritParams compute_rafe
 #' @inheritParams compute_crafe
 #' @param c Scalar weighting for RAFE. If `NULL` (default), the theorem's rule
-#'   is applied: 1 if `RAFE <= SR_star`, else 2. Note that the Part 1
-#'   replication code computes `RAFE + |SR*| * C-RAFE`, i.e. a fixed `c = 1`;
-#'   pass `c = 1` to reproduce those numbers exactly.
+#'   is applied: 1 if `RAFE <= SR_star`, else 2. The published replication
+#'   code computes `RAFE + |SR*| * C-RAFE`, i.e. a fixed `c = 1`; pass
+#'   `c = 1` to reproduce those numbers exactly.
 #' @param SR_star Optional oracle Sharpe ratio. If `NULL`, computed as
 #'   \eqn{\sqrt{\mu^\top \Sigma^{-1} \mu}} from `mu` and `Sigma_inv` (or
 #'   `Sigma`).

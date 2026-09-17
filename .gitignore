@@ -35,3 +35,6 @@ Thumbs.db
 
 # Compiled documentation site
 docs/
+
+# Local agent instructions, not part of the package
+CLAUDE.md

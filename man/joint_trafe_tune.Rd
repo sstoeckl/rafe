@@ -17,13 +17,12 @@ joint_trafe_tune(
 assets in columns.}
 
 \item{kappa_grid}{Grid of shrinkage intensities to search. The default
-matches Paper A's production grid, 101 points on \verb{[0, 1]}.}
+matches the working paper's grid, 101 points on \verb{[0, 1]}.}
 
 \item{tau_grid}{Grid of relative eigenvalue floors to search. The default
-matches Paper A's production grid, 101 points on \verb{[0, 0.5]}. Floors above
+matches the working paper's grid, 101 points on \verb{[0, 0.5]}. Floors above
 0.5 flatten the spectrum so aggressively that the cleaned covariance
-carries little information about the original; the paper does not admit
-them.}
+carries little information about the original, and are not admitted.}
 
 \item{inner_split}{Length-2 vector: rows used for inner training and for
 inner validation.}
@@ -51,8 +50,8 @@ fit$tau_rel
 
 }
 \references{
-Stöckl, S., Salcher, T., & Hanke, M. (2026/27, working). Post-Optimal
-Moment Correction for Mean-Variance Portfolios.
+Stöckl, S., Salcher, T., & Hanke, M. Post-Optimal Moment Correction for
+Mean-Variance Portfolios. Working paper.
 }
 \seealso{
 \code{\link[=sep_tune]{sep_tune()}} for the sequential search.

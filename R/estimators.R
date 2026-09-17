@@ -44,8 +44,8 @@
 #' mu_rafe_stein(mu_hat, Sigma_hat, kappa = 0.5)
 #'
 #' @references
-#'   Stöckl, S., Salcher, T., & Hanke, M. (2026/27, working). Post-Optimal
-#'   Moment Correction for Mean-Variance Portfolios.
+#'   Stöckl, S., Salcher, T., & Hanke, M. Post-Optimal Moment Correction for
+#'   Mean-Variance Portfolios. Working paper.
 #' @export
 mu_rafe_stein <- function(mu_hat, Sigma_hat, kappa = NULL,
                           target = c("grandmean", "zero"), T_obs = NULL) {
@@ -174,7 +174,7 @@ sigma_crafe_floor <- function(Sigma_hat, tau_rel = NULL) {
 #' separable, so each parameter is chosen against its own channel.
 #'
 #' The training window is split into an inner-training block and an
-#' inner-validation block (Paper A's default is 40 + 20 months). Moments are
+#' inner-validation block (40 + 20 months by default). Moments are
 #' estimated on the inner-training block, the realised moments of the
 #' inner-validation block play the role of \eqn{(\mu, \Sigma)} in the metrics,
 #' and the selected \eqn{(\kappa, \tau)} are then applied to the moments of the
@@ -183,12 +183,11 @@ sigma_crafe_floor <- function(Sigma_hat, tau_rel = NULL) {
 #' @param R_train Numeric matrix of training returns, observations in rows and
 #'   assets in columns.
 #' @param kappa_grid Grid of shrinkage intensities to search. The default
-#'   matches Paper A's production grid, 101 points on `[0, 1]`.
+#'   matches the working paper's grid, 101 points on `[0, 1]`.
 #' @param tau_grid Grid of relative eigenvalue floors to search. The default
-#'   matches Paper A's production grid, 101 points on `[0, 0.5]`. Floors above
+#'   matches the working paper's grid, 101 points on `[0, 0.5]`. Floors above
 #'   0.5 flatten the spectrum so aggressively that the cleaned covariance
-#'   carries little information about the original; the paper does not admit
-#'   them.
+#'   carries little information about the original, and are not admitted.
 #' @param inner_split Length-2 vector: rows used for inner training and for
 #'   inner validation.
 #' @param target Shrinkage target passed to [mu_rafe_stein()].

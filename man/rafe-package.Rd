@@ -6,28 +6,40 @@
 \alias{rafe-package}
 \title{rafe: Decision-Aligned Forecast Evaluation and Moment Correction}
 \description{
-Computes risk-adjusted forecast errors (RAFE), covariance forecast
-errors (C-RAFE), and the combined upper bound on the Sharpe-ratio gap
-(T-RAFE) of plug-in mean-variance portfolios, and provides decision-
-aligned moment-correction estimators and training-loss objectives.
+Evaluates return forecasts by the economic damage their errors cause
+rather than by their size, and corrects the forecast moments that a
+mean-variance optimiser is most sensitive to.
 }
 \details{
-Companion implementation to Salcher, Stoeckl & Hanke (2026, \emph{Journal
-of Forecasting}) and the RAFE Program of papers.
+Conventional accuracy measures weight every asset equally; a portfolio
+optimiser does not. The risk-adjusted forecast error (RAFE) and the
+operator-norm covariance forecast error (C-RAFE) reweight forecast errors
+by the risk metric the decision actually uses, and combine into an upper
+bound on the Sharpe-ratio gap of the plug-in portfolio (T-RAFE).
 
-Three groups of functions:
+Two groups of functions:
 \itemize{
-\item Metrics: \code{\link[=compute_rafe]{compute_rafe()}}, \code{\link[=compute_crafe]{compute_crafe()}}, \code{\link[=compute_trafe]{compute_trafe()}}.
-\item Post-processing estimators (Paper A): \code{\link[=mu_rafe_stein]{mu_rafe_stein()}},
-\code{\link[=sigma_crafe_floor]{sigma_crafe_floor()}}, \code{\link[=joint_trafe_tune]{joint_trafe_tune()}}, \code{\link[=sep_tune]{sep_tune()}}.
-\item Training-loss objectives (Paper B): \code{xgb_trafe_objective()},
-\code{torch_trafe_loss()} (to be added).
+\item \strong{Metrics}: \code{\link[=compute_rafe]{compute_rafe()}}, \code{\link[=compute_crafe]{compute_crafe()}}, \code{\link[=compute_trafe]{compute_trafe()}}.
+\item \strong{Moment correction}: \code{\link[=mu_rafe_stein]{mu_rafe_stein()}} and \code{\link[=sigma_crafe_floor]{sigma_crafe_floor()}} act on
+the two channels of the bound; \code{\link[=sep_tune]{sep_tune()}} and \code{\link[=joint_trafe_tune]{joint_trafe_tune()}}
+select their intensities on an inner-validation split.
 }
+
+Two datasets, \link{ff12} and \link{ff49}, make every example reproducible offline.
+}
+\references{
+Salcher, T., Stöckl, S., & Hanke, M. (2026). Lost in Translation?
+Risk-Adjusting RMSE for Economic Forecast Performance.
+\emph{Journal of Forecasting}. \doi{10.1002/for.70134}
+
+Stöckl, S., Salcher, T., & Hanke, M. Post-Optimal Moment Correction for
+Mean-Variance Portfolios. Working paper.
 }
 \seealso{
 Useful links:
 \itemize{
   \item \url{https://github.com/sstoeckl/rafe}
+  \item \url{https://sstoeckl.github.io/rafe/}
   \item Report bugs at \url{https://github.com/sstoeckl/rafe/issues}
 }
 

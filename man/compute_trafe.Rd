@@ -18,9 +18,9 @@ same thing here as it does there.}
 \item{Sigma_hat}{Forecast covariance matrix.}
 
 \item{c}{Scalar weighting for RAFE. If \code{NULL} (default), the theorem's rule
-is applied: 1 if \code{RAFE <= SR_star}, else 2. Note that the Part 1
-replication code computes \verb{RAFE + |SR*| * C-RAFE}, i.e. a fixed \code{c = 1};
-pass \code{c = 1} to reproduce those numbers exactly.}
+is applied: 1 if \code{RAFE <= SR_star}, else 2. The published replication
+code computes \verb{RAFE + |SR*| * C-RAFE}, i.e. a fixed \code{c = 1}; pass
+\code{c = 1} to reproduce those numbers exactly.}
 
 \item{SR_star}{Optional oracle Sharpe ratio. If \code{NULL}, computed as
 \eqn{\sqrt{\mu^\top \Sigma^{-1} \mu}} from \code{mu} and \code{Sigma_inv} (or

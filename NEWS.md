@@ -1,7 +1,6 @@
-# rafe (development version)
+# rafe 0.1.0
 
-First working version of the package. Everything below replaces the
-scaffolded stubs, which errored on call.
+First public release.
 
 ## Metrics
 
@@ -14,8 +13,8 @@ scaffolded stubs, which errored on call.
   `compute_crafe()` takes the realised covariance **first**.
 * `compute_trafe()` applies the theorem's data-dependent constant by default
   (`c = 1` when RAFE ≤ SR\*, else `c = 2`), and returns the decomposition as
-  attributes `rafe`, `crafe`, `c` and `SR_star`. Part 1's replication code
-  fixes `c = 1`; pass `c = 1` to reproduce those numbers exactly.
+  attributes `rafe`, `crafe`, `c` and `SR_star`. The published replication
+  code fixes `c = 1`; pass `c = 1` to reproduce those numbers exactly.
 
 ## Moment correction
 
@@ -25,9 +24,8 @@ scaffolded stubs, which errored on call.
 * `sigma_crafe_floor()` raises small eigenvalues to a floor relative to the
   mean eigenvalue.
 * `sep_tune()` and `joint_trafe_tune()` select `(kappa, tau)` on an
-  inner-validation split, sequentially or jointly. Default grids match Paper
-  A's production configuration: 101 points on `[0, 1]` for kappa and on
-  `[0, 0.5]` for tau.
+  inner-validation split, sequentially or jointly. Default grids use 101
+  points on `[0, 1]` for kappa and on `[0, 0.5]` for tau.
 
 ## Data
 
@@ -36,5 +34,6 @@ scaffolded stubs, which errored on call.
 
 ## Vignettes
 
-* `rafe-getting-started`, `rafe-evaluation` (reproduces the Part 1
-  lambda-contamination experiment on FF-49) and `rafe-post-processing`.
+* `rafe-getting-started`, `rafe-evaluation` (reproduces the published
+  mean-variance experiment on 49 industry portfolios) and
+  `rafe-post-processing`.

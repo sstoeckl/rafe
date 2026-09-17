@@ -1,8 +1,8 @@
 ---
-title: "1. Evaluating forecasts: reproducing the Part 1 experiment"
+title: "1. Evaluating forecasts: forecasts of controlled quality"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{1. Evaluating forecasts: reproducing the Part 1 experiment}
+  %\VignetteIndexEntry{1. Evaluating forecasts: forecasts of controlled quality}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -19,7 +19,7 @@ data(ff49)
 ```
 
 This vignette follows the mean-variance experiment of Salcher, Stöckl & Hanke
-(2026, *Journal of Forecasting*), whose replication code lives at
+(2026, *Journal of Forecasting*), whose replication code is available at
 [github.com/sstoeckl/Lost_in_Translation_Replication](https://github.com/sstoeckl/Lost_in_Translation_Replication).
 
 The design solves a problem that makes forecast evaluation hard: real

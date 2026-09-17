@@ -1,34 +1,39 @@
 Package: rafe
 Type: Package
 Title: Decision-Aligned Forecast Evaluation and Moment Correction
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: c(
     person("Sebastian", "Stöckl", email = "sebastian.stoeckl@uni.li",
            role = c("aut", "cre")),
     person("Tobias", "Salcher", role = "aut"),
     person("Michael", "Hanke", role = "aut")
     )
-Description: Computes risk-adjusted forecast errors (RAFE), covariance
-    forecast errors (C-RAFE), and the combined upper bound on the Sharpe-
-    ratio gap (T-RAFE) of plug-in mean-variance portfolios, as introduced
-    in Salcher, Stoeckl & Hanke (2026, Journal of Forecasting). Also
-    provides decision-aligned moment-correction estimators (Stein-style
-    mean shrinkage in the risk-whitened space and eigenvalue-floor
-    covariance cleaning) and training-loss objectives for XGBoost and
-    torch, as developed in the RAFE Program of papers.
+Description: Evaluates return forecasts by the economic damage their errors
+    cause, rather than by their size. Implements the risk-adjusted forecast
+    error (RAFE), the operator-norm covariance forecast error (C-RAFE), and
+    their combination into an upper bound on the Sharpe-ratio gap of a
+    plug-in mean-variance portfolio (T-RAFE), as established in Salcher,
+    Stoeckl and Hanke (2026) <doi:10.1002/for.70134>. Conventional accuracy
+    measures such as root mean squared error weight every asset equally,
+    while a portfolio optimiser does not; these metrics reweight forecast
+    errors by the risk metric the decision actually uses. Also provides
+    moment-correction estimators acting on the two channels of the bound,
+    namely positive-part James-Stein mean shrinkage in the risk-whitened
+    space and eigenvalue-floor covariance cleaning, with shrinkage intensity
+    and floor selected on an inner-validation split.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
+Depends:
+    R (>= 4.1.0)
 Imports:
     stats
 Suggests:
     testthat (>= 3.0.0),
     knitr,
-    rmarkdown,
-    xgboost,
-    torch
+    rmarkdown
 URL: https://github.com/sstoeckl/rafe, https://sstoeckl.github.io/rafe/
 BugReports: https://github.com/sstoeckl/rafe/issues
 VignetteBuilder: knitr
