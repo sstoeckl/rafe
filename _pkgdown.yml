@@ -2,10 +2,7 @@ url: https://sstoeckl.github.io/rafe/
 
 template:
   bootstrap: 5
-  bslib:
-    primary: "#1f4e79"
-    base_font: {google: "Source Sans 3"}
-    code_font: {google: "Source Code Pro"}
+  bootswatch: spacelab
 
 home:
   title: Decision-aligned forecast evaluation and moment correction
@@ -16,6 +13,7 @@ home:
     estimators.
 
 navbar:
+  bg: primary
   structure:
     left:  [intro, reference, articles, news]
     right: [search, github]
