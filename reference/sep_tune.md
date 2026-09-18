@@ -43,7 +43,7 @@ sep_tune(
 - target:
 
   Shrinkage target passed to
-  [`mu_rafe_stein()`](https://sstoeckl.github.io/rafe/reference/mu_rafe_stein.md).
+  [`mu_rafe_stein()`](https://www.sebastianstoeckl.com/rafe/reference/mu_rafe_stein.md).
 
 ## Value
 
@@ -66,7 +66,7 @@ Mean-Variance Portfolios. Working paper.
 
 ## See also
 
-[`joint_trafe_tune()`](https://sstoeckl.github.io/rafe/reference/joint_trafe_tune.md)
+[`joint_trafe_tune()`](https://www.sebastianstoeckl.com/rafe/reference/joint_trafe_tune.md)
 for the joint search.
 
 ## Examples

@@ -16,27 +16,27 @@ an upper bound on the Sharpe-ratio gap of the plug-in portfolio
 Two groups of functions:
 
 - **Metrics**:
-  [`compute_rafe()`](https://sstoeckl.github.io/rafe/reference/compute_rafe.md),
-  [`compute_crafe()`](https://sstoeckl.github.io/rafe/reference/compute_crafe.md),
-  [`compute_trafe()`](https://sstoeckl.github.io/rafe/reference/compute_trafe.md),
+  [`compute_rafe()`](https://www.sebastianstoeckl.com/rafe/reference/compute_rafe.md),
+  [`compute_crafe()`](https://www.sebastianstoeckl.com/rafe/reference/compute_crafe.md),
+  [`compute_trafe()`](https://www.sebastianstoeckl.com/rafe/reference/compute_trafe.md),
   and
-  [`restrict_cov()`](https://sstoeckl.github.io/rafe/reference/restrict_cov.md)
+  [`restrict_cov()`](https://www.sebastianstoeckl.com/rafe/reference/restrict_cov.md)
   for the nested sequence of covariance restrictions that reduces RAFE
   to RMSE.
 
 - **Moment correction**:
-  [`mu_rafe_stein()`](https://sstoeckl.github.io/rafe/reference/mu_rafe_stein.md)
+  [`mu_rafe_stein()`](https://www.sebastianstoeckl.com/rafe/reference/mu_rafe_stein.md)
   and
-  [`sigma_crafe_floor()`](https://sstoeckl.github.io/rafe/reference/sigma_crafe_floor.md)
+  [`sigma_crafe_floor()`](https://www.sebastianstoeckl.com/rafe/reference/sigma_crafe_floor.md)
   act on the two channels of the bound;
-  [`sep_tune()`](https://sstoeckl.github.io/rafe/reference/sep_tune.md)
+  [`sep_tune()`](https://www.sebastianstoeckl.com/rafe/reference/sep_tune.md)
   and
-  [`joint_trafe_tune()`](https://sstoeckl.github.io/rafe/reference/joint_trafe_tune.md)
+  [`joint_trafe_tune()`](https://www.sebastianstoeckl.com/rafe/reference/joint_trafe_tune.md)
   select their intensities on an inner-validation split.
 
-The [ff12](https://sstoeckl.github.io/rafe/reference/ff12.md) dataset,
-the universe of the published paper, makes every example reproducible
-offline.
+The [ff12](https://www.sebastianstoeckl.com/rafe/reference/ff12.md)
+dataset, the universe of the published paper, makes every example
+reproducible offline.
 
 ## References
 
@@ -53,16 +53,10 @@ Useful links:
 
 - <https://github.com/sstoeckl/rafe>
 
-- <https://sstoeckl.github.io/rafe/>
+- <https://www.sebastianstoeckl.com/rafe/>
 
 - Report bugs at <https://github.com/sstoeckl/rafe/issues>
 
 ## Author
 
 **Maintainer**: Sebastian Stöckl <sebastian.stoeckl@uni.li>
-
-Authors:
-
-- Lukas Salcher
-
-- Michael Hanke

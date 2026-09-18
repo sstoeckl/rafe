@@ -23,7 +23,7 @@ compute_crafe(Sigma, Sigma_hat, variant = c("none", "cc05", "cc0", "cv", "i"))
 
   Covariance restriction applied to `Sigma`, from the nested sequence of
   Section 3.3; see
-  [`restrict_cov()`](https://sstoeckl.github.io/rafe/reference/restrict_cov.md).
+  [`restrict_cov()`](https://www.sebastianstoeckl.com/rafe/reference/restrict_cov.md).
 
 ## Value
 

@@ -54,7 +54,7 @@ compute_trafe(
 - variant:
 
   Covariance restriction applied to both channels; see
-  [`restrict_cov()`](https://sstoeckl.github.io/rafe/reference/restrict_cov.md).
+  [`restrict_cov()`](https://www.sebastianstoeckl.com/rafe/reference/restrict_cov.md).
   `SR_star` is always computed from the unrestricted `Sigma`, matching
   the published tables.
 

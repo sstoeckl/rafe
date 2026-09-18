@@ -6,20 +6,20 @@ First public release.
 
 ### Metrics
 
-- [`compute_rafe()`](https://sstoeckl.github.io/rafe/reference/compute_rafe.md),
-  [`compute_crafe()`](https://sstoeckl.github.io/rafe/reference/compute_crafe.md)
+- [`compute_rafe()`](https://www.sebastianstoeckl.com/rafe/reference/compute_rafe.md),
+  [`compute_crafe()`](https://www.sebastianstoeckl.com/rafe/reference/compute_crafe.md)
   and
-  [`compute_trafe()`](https://sstoeckl.github.io/rafe/reference/compute_trafe.md)
+  [`compute_trafe()`](https://www.sebastianstoeckl.com/rafe/reference/compute_trafe.md)
   implement the risk-adjusted mean error, the operator-norm precision
   distortion, and their combination into the upper bound on the
   Sharpe-ratio gap.
 - Argument order matches the replication code of Salcher, Stöckl & Hanke
   (2026), so scripts from that repository run unchanged:
-  [`compute_rafe()`](https://sstoeckl.github.io/rafe/reference/compute_rafe.md)
+  [`compute_rafe()`](https://www.sebastianstoeckl.com/rafe/reference/compute_rafe.md)
   takes the realised covariance as its third positional argument, and
-  [`compute_crafe()`](https://sstoeckl.github.io/rafe/reference/compute_crafe.md)
+  [`compute_crafe()`](https://www.sebastianstoeckl.com/rafe/reference/compute_crafe.md)
   takes the realised covariance **first**.
-- [`compute_trafe()`](https://sstoeckl.github.io/rafe/reference/compute_trafe.md)
+- [`compute_trafe()`](https://www.sebastianstoeckl.com/rafe/reference/compute_trafe.md)
   applies the theorem’s data-dependent constant by default (`c = 1` when
   RAFE ≤ SR\*, else `c = 2`), and returns the decomposition as
   attributes `rafe`, `crafe`, `c` and `SR_star`. The published
@@ -28,15 +28,15 @@ First public release.
 
 ### Moment correction
 
-- [`mu_rafe_stein()`](https://sstoeckl.github.io/rafe/reference/mu_rafe_stein.md)
+- [`mu_rafe_stein()`](https://www.sebastianstoeckl.com/rafe/reference/mu_rafe_stein.md)
   applies positive-part James–Stein shrinkage in the risk-whitened
   space. Supply `T_obs` for the James–Stein intensity or `kappa` to fix
   it.
-- [`sigma_crafe_floor()`](https://sstoeckl.github.io/rafe/reference/sigma_crafe_floor.md)
+- [`sigma_crafe_floor()`](https://www.sebastianstoeckl.com/rafe/reference/sigma_crafe_floor.md)
   raises small eigenvalues to a floor relative to the mean eigenvalue.
-- [`sep_tune()`](https://sstoeckl.github.io/rafe/reference/sep_tune.md)
+- [`sep_tune()`](https://www.sebastianstoeckl.com/rafe/reference/sep_tune.md)
   and
-  [`joint_trafe_tune()`](https://sstoeckl.github.io/rafe/reference/joint_trafe_tune.md)
+  [`joint_trafe_tune()`](https://www.sebastianstoeckl.com/rafe/reference/joint_trafe_tune.md)
   select `(kappa, tau)` on an inner-validation split, sequentially or
   jointly. Default grids use 101 points on `[0, 1]` for kappa and on
   `[0, 0.5]` for tau.

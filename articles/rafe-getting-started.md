@@ -44,7 +44,7 @@ compute_crafe(Sigma, Sigma_hat)
 #> [1] 4.557
 ```
 
-[`compute_trafe()`](https://sstoeckl.github.io/rafe/reference/compute_trafe.md)
+[`compute_trafe()`](https://www.sebastianstoeckl.com/rafe/reference/compute_trafe.md)
 combines them into the paper’s total error and returns the decomposition
 as attributes. Pass `c = NULL` for the guaranteed upper bound, which
 carries a data-dependent constant ($`c = 1`$ if
@@ -72,7 +72,7 @@ unlist(attributes(bound))
 
 The paper’s framing is that RMSE is RAFE after the covariance has been
 stripped of everything that makes it informative.
-[`restrict_cov()`](https://sstoeckl.github.io/rafe/reference/restrict_cov.md)
+[`restrict_cov()`](https://www.sebastianstoeckl.com/rafe/reference/restrict_cov.md)
 performs that sequence and every metric takes a matching `variant`:
 
 ``` r
@@ -89,7 +89,7 @@ $`\lVert\hat\mu - \mu\rVert_2`$.
 ## The correctors
 
 If you cannot retrain the forecaster, correct its output.
-[`sep_tune()`](https://sstoeckl.github.io/rafe/reference/sep_tune.md)
+[`sep_tune()`](https://www.sebastianstoeckl.com/rafe/reference/sep_tune.md)
 picks a mean-shrinkage intensity $`\kappa`$ and a covariance eigenvalue
 floor $`\tau`$ on an inner-validation split, then applies both:
 
@@ -111,11 +111,11 @@ c(rafe_before  = compute_rafe(mu_hat, mu, Sigma = Sigma),
 
 ## Where to go next
 
-- [`vignette("rafe-evaluation", package = "rafe")`](https://sstoeckl.github.io/rafe/articles/rafe-evaluation.md)
+- [`vignette("rafe-evaluation", package = "rafe")`](https://www.sebastianstoeckl.com/rafe/articles/rafe-evaluation.md)
   — reproduces Table 4 of the published paper from the raw returns, and
   shows how much explanatory power each simplification of the covariance
   costs on the way down to RMSE.
-- [`vignette("rafe-post-processing", package = "rafe")`](https://sstoeckl.github.io/rafe/articles/rafe-post-processing.md)
+- [`vignette("rafe-post-processing", package = "rafe")`](https://www.sebastianstoeckl.com/rafe/articles/rafe-post-processing.md)
   — correcting moments you were handed: tuning $`(\kappa, \tau)`$, what
   the correction does to both channels of the bound, and what it does to
   portfolios.

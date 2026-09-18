@@ -27,7 +27,7 @@ relative to the oracle. Salcher, Stöckl and Hanke (2026) show that
 
 with $`c = 1`$ when $`\textrm{RAFE} \le SR^{*}`$ and $`c = 2`$
 otherwise.
-[`compute_trafe()`](https://sstoeckl.github.io/rafe/reference/compute_trafe.md)
+[`compute_trafe()`](https://www.sebastianstoeckl.com/rafe/reference/compute_trafe.md)
 returns the published total error
 $`\textrm{RAFE} + SR^{*}\cdot\textrm{C-RAFE}`$; pass `c = NULL` for the
 guaranteed bound.
@@ -67,7 +67,7 @@ unlist(attributes(bound))           # bound plus its decomposition
 
 If the forecaster cannot be retrained, correct its output before it
 reaches the optimiser.
-[`sep_tune()`](https://sstoeckl.github.io/rafe/reference/sep_tune.md)
+[`sep_tune()`](https://www.sebastianstoeckl.com/rafe/reference/sep_tune.md)
 selects a mean-shrinkage intensity $`\kappa`$ and a covariance
 eigenvalue floor $`\tau`$ on an inner-validation split:
 
@@ -80,29 +80,29 @@ compute_crafe(Sigma, fit$Sigma_tilde)   # below the uncorrected distortion
 ```
 
 The individual correctors are available directly as
-[`mu_rafe_stein()`](https://sstoeckl.github.io/rafe/reference/mu_rafe_stein.md)
+[`mu_rafe_stein()`](https://www.sebastianstoeckl.com/rafe/reference/mu_rafe_stein.md)
 and
-[`sigma_crafe_floor()`](https://sstoeckl.github.io/rafe/reference/sigma_crafe_floor.md).
+[`sigma_crafe_floor()`](https://www.sebastianstoeckl.com/rafe/reference/sigma_crafe_floor.md).
 
 Argument order follows the replication code of the published paper, so
 scripts written against it run unchanged here. Note in particular that
-[`compute_crafe()`](https://sstoeckl.github.io/rafe/reference/compute_crafe.md)
+[`compute_crafe()`](https://www.sebastianstoeckl.com/rafe/reference/compute_crafe.md)
 takes the **realised** covariance first.
 
 ## Articles
 
 - [Getting
-  started](https://sstoeckl.github.io/rafe/articles/rafe-getting-started.html)
+  started](https://www.sebastianstoeckl.com/rafe/articles/rafe-getting-started.html)
   — a short tour of the metrics and correctors.
 - [Evaluating
-  forecasts](https://sstoeckl.github.io/rafe/articles/rafe-evaluation.html)
+  forecasts](https://www.sebastianstoeckl.com/rafe/articles/rafe-evaluation.html)
   — reproduces Table 4 of the published paper, to all three reported
   decimals, using only package functions. As the covariance is
   progressively stripped out of the error measure, its correlation with
   realised economic loss falls from 0.68 to 0.11. The last step in that
   sequence is RMSE.
 - [Post-processing
-  forecasts](https://sstoeckl.github.io/rafe/articles/rafe-post-processing.html)
+  forecasts](https://www.sebastianstoeckl.com/rafe/articles/rafe-post-processing.html)
   — tuning $`(\kappa, \tau)`$, what correction does to each channel of
   the bound, and what it does to realised portfolios.
 
@@ -142,4 +142,4 @@ For the moment-correction estimators:
 
 ## License
 
-MIT © Sebastian Stöckl, Lukas Salcher, Michael Hanke
+MIT © Sebastian Stöckl

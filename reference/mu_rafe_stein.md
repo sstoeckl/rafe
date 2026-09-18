@@ -61,9 +61,9 @@ Because \\\\\hat m - m_0\\\_2^2 = (\hat\mu - \mu_0)^\top \hat\Sigma^{-1}
 
 Supply `T_obs` to use the James–Stein intensity, or `kappa` to fix the
 intensity directly (which is what
-[`sep_tune()`](https://sstoeckl.github.io/rafe/reference/sep_tune.md)
+[`sep_tune()`](https://www.sebastianstoeckl.com/rafe/reference/sep_tune.md)
 and
-[`joint_trafe_tune()`](https://sstoeckl.github.io/rafe/reference/joint_trafe_tune.md)
+[`joint_trafe_tune()`](https://www.sebastianstoeckl.com/rafe/reference/joint_trafe_tune.md)
 search over). Exactly one of the two is required.
 
 ## References

@@ -33,9 +33,9 @@ applied absolute floor attached as attribute `tau_abs`.
 ## Details
 
 `tau_rel` is tuned on inner-validation C-RAFE by
-[`sep_tune()`](https://sstoeckl.github.io/rafe/reference/sep_tune.md)
+[`sep_tune()`](https://www.sebastianstoeckl.com/rafe/reference/sep_tune.md)
 and
-[`joint_trafe_tune()`](https://sstoeckl.github.io/rafe/reference/joint_trafe_tune.md);
+[`joint_trafe_tune()`](https://www.sebastianstoeckl.com/rafe/reference/joint_trafe_tune.md);
 this function applies a given floor.
 
 ## References

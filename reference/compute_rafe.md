@@ -41,7 +41,7 @@ compute_rafe(
 - variant:
 
   Covariance restriction from the nested sequence of Section 3.3; see
-  [`restrict_cov()`](https://sstoeckl.github.io/rafe/reference/restrict_cov.md).
+  [`restrict_cov()`](https://www.sebastianstoeckl.com/rafe/reference/restrict_cov.md).
   `"i"` returns the paper's RMSE.
 
 ## Value

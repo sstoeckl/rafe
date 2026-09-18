@@ -30,7 +30,7 @@ covariance gives a nested sequence ending at RMSE:
 | `"cv"`      | correlations $`0`$, all variances set to the average variance |
 | `"i"`       | the identity — this *is* RMSE                                 |
 
-[`restrict_cov()`](https://sstoeckl.github.io/rafe/reference/restrict_cov.md)
+[`restrict_cov()`](https://www.sebastianstoeckl.com/rafe/reference/restrict_cov.md)
 performs the restriction; every metric takes a `variant`:
 
 ``` r
@@ -232,7 +232,7 @@ par(op)
 
 T-RAFE adds $`SR^{*}\cdot\text{C-RAFE}`$ to RAFE. Table 5 reports how
 much that addition changes the correlation with the gap.
-[`compute_trafe()`](https://sstoeckl.github.io/rafe/reference/compute_trafe.md)
+[`compute_trafe()`](https://www.sebastianstoeckl.com/rafe/reference/compute_trafe.md)
 takes the strategy’s own perfect-foresight Sharpe ratio through
 `SR_star`:
 

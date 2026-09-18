@@ -27,7 +27,7 @@ relative to the oracle. Salcher, Stöckl and Hanke (2026) show that
 
 with $`c = 1`$ when $`\textrm{RAFE} \le SR^{*}`$ and $`c = 2`$
 otherwise.
-[`compute_trafe()`](https://sstoeckl.github.io/rafe/reference/compute_trafe.md)
+[`compute_trafe()`](https://www.sebastianstoeckl.com/rafe/reference/compute_trafe.md)
 returns the published total error
 $`\textrm{RAFE} + SR^{*}\cdot\textrm{C-RAFE}`$; pass `c = NULL` for the
 guaranteed bound.
@@ -67,7 +67,7 @@ unlist(attributes(bound))           # bound plus its decomposition
 
 If the forecaster cannot be retrained, correct its output before it
 reaches the optimiser.
-[`sep_tune()`](https://sstoeckl.github.io/rafe/reference/sep_tune.md)
+[`sep_tune()`](https://www.sebastianstoeckl.com/rafe/reference/sep_tune.md)
 selects a mean-shrinkage intensity $`\kappa`$ and a covariance
 eigenvalue floor $`\tau`$ on an inner-validation split:
 
@@ -80,29 +80,29 @@ compute_crafe(Sigma, fit$Sigma_tilde)   # below the uncorrected distortion
 ```
 
 The individual correctors are available directly as
-[`mu_rafe_stein()`](https://sstoeckl.github.io/rafe/reference/mu_rafe_stein.md)
+[`mu_rafe_stein()`](https://www.sebastianstoeckl.com/rafe/reference/mu_rafe_stein.md)
 and
-[`sigma_crafe_floor()`](https://sstoeckl.github.io/rafe/reference/sigma_crafe_floor.md).
+[`sigma_crafe_floor()`](https://www.sebastianstoeckl.com/rafe/reference/sigma_crafe_floor.md).
 
 Argument order follows the replication code of the published paper, so
 scripts written against it run unchanged here. Note in particular that
-[`compute_crafe()`](https://sstoeckl.github.io/rafe/reference/compute_crafe.md)
+[`compute_crafe()`](https://www.sebastianstoeckl.com/rafe/reference/compute_crafe.md)
 takes the **realised** covariance first.
 
 ## Articles
 
 - [Getting
-  started](https://sstoeckl.github.io/rafe/articles/rafe-getting-started.html)
+  started](https://www.sebastianstoeckl.com/rafe/articles/rafe-getting-started.html)
   — a short tour of the metrics and correctors.
 - [Evaluating
-  forecasts](https://sstoeckl.github.io/rafe/articles/rafe-evaluation.html)
+  forecasts](https://www.sebastianstoeckl.com/rafe/articles/rafe-evaluation.html)
   — reproduces Table 4 of the published paper, to all three reported
   decimals, using only package functions. As the covariance is
   progressively stripped out of the error measure, its correlation with
   realised economic loss falls from 0.68 to 0.11. The last step in that
   sequence is RMSE.
 - [Post-processing
-  forecasts](https://sstoeckl.github.io/rafe/articles/rafe-post-processing.html)
+  forecasts](https://www.sebastianstoeckl.com/rafe/articles/rafe-post-processing.html)
   — tuning $`(\kappa, \tau)`$, what correction does to each channel of
   the bound, and what it does to realised portfolios.
 
@@ -142,7 +142,7 @@ For the moment-correction estimators:
 
 ## License
 
-MIT © Sebastian Stöckl, Lukas Salcher, Michael Hanke
+MIT © Sebastian Stöckl
 
 # Package index
 
@@ -152,13 +152,13 @@ Score a forecast by the damage its errors do to a mean-variance
 decision. Argument order matches the replication code of Salcher, Stöckl
 & Hanke (2026).
 
-- [`compute_rafe()`](https://sstoeckl.github.io/rafe/reference/compute_rafe.md)
+- [`compute_rafe()`](https://www.sebastianstoeckl.com/rafe/reference/compute_rafe.md)
   : Risk-Adjusted Forecast Error (RAFE)
-- [`compute_crafe()`](https://sstoeckl.github.io/rafe/reference/compute_crafe.md)
+- [`compute_crafe()`](https://www.sebastianstoeckl.com/rafe/reference/compute_crafe.md)
   : Covariance Forecast Error (C-RAFE)
-- [`compute_trafe()`](https://sstoeckl.github.io/rafe/reference/compute_trafe.md)
+- [`compute_trafe()`](https://www.sebastianstoeckl.com/rafe/reference/compute_trafe.md)
   : Total RAFE (T-RAFE) — Sharpe-Gap Upper Bound
-- [`restrict_cov()`](https://sstoeckl.github.io/rafe/reference/restrict_cov.md)
+- [`restrict_cov()`](https://www.sebastianstoeckl.com/rafe/reference/restrict_cov.md)
   : Restricted Covariance Matrices for the Nested Metric Sequence
 
 ## Moment correction
@@ -166,9 +166,9 @@ decision. Argument order matches the replication code of Salcher, Stöckl
 Correct forecast moments you were handed, before they reach the
 optimiser.
 
-- [`mu_rafe_stein()`](https://sstoeckl.github.io/rafe/reference/mu_rafe_stein.md)
+- [`mu_rafe_stein()`](https://www.sebastianstoeckl.com/rafe/reference/mu_rafe_stein.md)
   : RAFE-Stein-Corrected Mean
-- [`sigma_crafe_floor()`](https://sstoeckl.github.io/rafe/reference/sigma_crafe_floor.md)
+- [`sigma_crafe_floor()`](https://www.sebastianstoeckl.com/rafe/reference/sigma_crafe_floor.md)
   : C-RAFE-Tuned Eigenvalue Floor for Covariance
 
 ## Tuning
@@ -176,22 +176,22 @@ optimiser.
 Choose the shrinkage intensity and eigenvalue floor on an
 inner-validation split.
 
-- [`sep_tune()`](https://sstoeckl.github.io/rafe/reference/sep_tune.md)
+- [`sep_tune()`](https://www.sebastianstoeckl.com/rafe/reference/sep_tune.md)
   : Sequentially Tuned Moment Correction
-- [`joint_trafe_tune()`](https://sstoeckl.github.io/rafe/reference/joint_trafe_tune.md)
+- [`joint_trafe_tune()`](https://www.sebastianstoeckl.com/rafe/reference/joint_trafe_tune.md)
   : Jointly T-RAFE-Tuned Moment Correction
 
 ## Data
 
 The Fama-French industry portfolios of the published paper.
 
-- [`ff12`](https://sstoeckl.github.io/rafe/reference/ff12.md) :
+- [`ff12`](https://www.sebastianstoeckl.com/rafe/reference/ff12.md) :
   Fama-French 12 Industry Portfolios, Monthly Excess Returns
 
 ## Package
 
-- [`rafe`](https://sstoeckl.github.io/rafe/reference/rafe-package.md)
-  [`rafe-package`](https://sstoeckl.github.io/rafe/reference/rafe-package.md)
+- [`rafe`](https://www.sebastianstoeckl.com/rafe/reference/rafe-package.md)
+  [`rafe-package`](https://www.sebastianstoeckl.com/rafe/reference/rafe-package.md)
   : rafe: Decision-Aligned Forecast Evaluation and Moment Correction
 
 # Articles
@@ -199,8 +199,8 @@ The Fama-French industry portfolios of the published paper.
 ### Vignettes
 
 - [0. rafe — getting
-  started](https://sstoeckl.github.io/rafe/articles/rafe-getting-started.md):
+  started](https://www.sebastianstoeckl.com/rafe/articles/rafe-getting-started.md):
 - [1. Evaluating forecasts: reproducing the published
-  results](https://sstoeckl.github.io/rafe/articles/rafe-evaluation.md):
+  results](https://www.sebastianstoeckl.com/rafe/articles/rafe-evaluation.md):
 - [2. Post-processing forecasts: correcting the moments you were
-  handed](https://sstoeckl.github.io/rafe/articles/rafe-post-processing.md):
+  handed](https://www.sebastianstoeckl.com/rafe/articles/rafe-post-processing.md):

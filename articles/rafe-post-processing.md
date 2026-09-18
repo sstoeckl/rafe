@@ -7,7 +7,7 @@ data(ff12)
 R <- as.matrix(ff12[, -1])
 ```
 
-[`vignette("rafe-evaluation", package = "rafe")`](https://sstoeckl.github.io/rafe/articles/rafe-evaluation.md)
+[`vignette("rafe-evaluation", package = "rafe")`](https://www.sebastianstoeckl.com/rafe/articles/rafe-evaluation.md)
 showed that the Sharpe gap of a plug-in portfolio is bounded by two
 channels: a mean error measured in the risk metric (RAFE) and a
 covariance distortion measured in the operator norm (C-RAFE). This
@@ -21,7 +21,7 @@ subject of the moment-correction working paper cited below.
 
 ## The two atomic correctors
 
-[`mu_rafe_stein()`](https://sstoeckl.github.io/rafe/reference/mu_rafe_stein.md)
+[`mu_rafe_stein()`](https://www.sebastianstoeckl.com/rafe/reference/mu_rafe_stein.md)
 shrinks the mean toward a target with intensity $`\kappa`$, computing
 that intensity in the $`\hat\Sigma^{-1/2}`$-whitened space. Pass `T_obs`
 for the positive-part James-Stein intensity implied by the sample size:
@@ -53,7 +53,7 @@ c(raw = mean(mu_hat), corrected = mean(mu_js),
 #>         0.007029         0.007029         0.004908         0.003090
 ```
 
-[`sigma_crafe_floor()`](https://sstoeckl.github.io/rafe/reference/sigma_crafe_floor.md)
+[`sigma_crafe_floor()`](https://www.sebastianstoeckl.com/rafe/reference/sigma_crafe_floor.md)
 lifts the small eigenvalues of $`\hat\Sigma`$ to a floor set relative to
 the mean eigenvalue. Those small eigenvalues are exactly the directions
 a mean-variance optimiser leverages hardest, and exactly where the
@@ -83,10 +83,10 @@ training window into an inner-training and an inner-validation block
 (40 + 20 months by default), fit on the first and score on the second.
 
 They differ in *what* they score.
-[`sep_tune()`](https://sstoeckl.github.io/rafe/reference/sep_tune.md)
+[`sep_tune()`](https://www.sebastianstoeckl.com/rafe/reference/sep_tune.md)
 tunes each parameter against its own channel — $`\kappa`$ on
 inner-validation RAFE, $`\tau`$ on inner-validation C-RAFE.
-[`joint_trafe_tune()`](https://sstoeckl.github.io/rafe/reference/joint_trafe_tune.md)
+[`joint_trafe_tune()`](https://www.sebastianstoeckl.com/rafe/reference/joint_trafe_tune.md)
 searches the full $`(\kappa, \tau)`$ grid against inner-validation
 T-RAFE.
 
@@ -105,7 +105,7 @@ rbind(sep   = c(kappa = fit_sep$kappa,   tau = fit_sep$tau_rel),
 #> joint     1 0.5
 ```
 
-[`sep_tune()`](https://sstoeckl.github.io/rafe/reference/sep_tune.md)
+[`sep_tune()`](https://www.sebastianstoeckl.com/rafe/reference/sep_tune.md)
 returns the two loss profiles, so you can see whether the optimum is
 interior or sitting on a grid edge:
 
@@ -328,8 +328,8 @@ That is the practical content of the separability claim: the bound’s two
 channels can be tuned independently without loss, which turns a
 two-dimensional grid search into two one-dimensional ones. If you are
 tuning on a large cross-section, prefer
-[`sep_tune()`](https://sstoeckl.github.io/rafe/reference/sep_tune.md) —
-it is the cheaper of the two and, here, selects identically.
+[`sep_tune()`](https://www.sebastianstoeckl.com/rafe/reference/sep_tune.md)
+— it is the cheaper of the two and, here, selects identically.
 
 One caveat on the grid. Relative floors are admitted on `[0, 0.5]`,
 which is the package default. On this universe the selected $`\tau`$

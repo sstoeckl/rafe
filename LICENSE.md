@@ -1,6 +1,6 @@
 # MIT License
 
-Copyright (c) 2026 Sebastian Stöckl, Lukas Salcher, Michael Hanke
+Copyright (c) 2026 Sebastian Stöckl
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the

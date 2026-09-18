@@ -3,7 +3,7 @@
 Tunes \\(\kappa, \tau)\\ jointly on the full grid to minimise
 inner-validation T-RAFE. Empirically close to indistinguishable from the
 sequential search of
-[`sep_tune()`](https://sstoeckl.github.io/rafe/reference/sep_tune.md),
+[`sep_tune()`](https://www.sebastianstoeckl.com/rafe/reference/sep_tune.md),
 which is the practical evidence that the bound's two channels are
 separable.
 
@@ -46,7 +46,7 @@ joint_trafe_tune(
 - target:
 
   Shrinkage target passed to
-  [`mu_rafe_stein()`](https://sstoeckl.github.io/rafe/reference/mu_rafe_stein.md).
+  [`mu_rafe_stein()`](https://www.sebastianstoeckl.com/rafe/reference/mu_rafe_stein.md).
 
 ## Value
 
@@ -61,7 +61,7 @@ Mean-Variance Portfolios. Working paper.
 
 ## See also
 
-[`sep_tune()`](https://sstoeckl.github.io/rafe/reference/sep_tune.md)
+[`sep_tune()`](https://www.sebastianstoeckl.com/rafe/reference/sep_tune.md)
 for the sequential search.
 
 ## Examples
