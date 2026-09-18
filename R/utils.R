@@ -1,6 +1,6 @@
 # Internal linear-algebra helpers. Not exported.
 #
-# Ported from Lost_in_Translation_Part2/paper_c/R/00_helpers.R, with the
+# Ported from 3212_recipe/R/00_helpers.R, with the
 # MASS::ginv fallback replaced by an eigen-based Moore-Penrose inverse so the
 # package keeps a base-only dependency footprint.
 
