@@ -2,12 +2,9 @@ Package: rafe
 Type: Package
 Title: Decision-Aligned Forecast Evaluation and Moment Correction
 Version: 0.1.0
-Authors@R: c(
+Authors@R:
     person("Sebastian", "Stöckl", email = "sebastian.stoeckl@uni.li",
-           role = c("aut", "cre")),
-    person("Lukas", "Salcher", role = "aut"),
-    person("Michael", "Hanke", role = "aut")
-    )
+           role = c("aut", "cre"))
 Description: Evaluates return forecasts by the economic damage their errors
     cause, rather than by their size. Implements the risk-adjusted forecast
     error (RAFE), the operator-norm covariance forecast error (C-RAFE), and
@@ -34,7 +31,8 @@ Suggests:
     testthat (>= 3.0.0),
     knitr,
     rmarkdown
-URL: https://github.com/sstoeckl/rafe, https://sstoeckl.github.io/rafe/
+URL: https://github.com/sstoeckl/rafe,
+    https://www.sebastianstoeckl.com/rafe/
 BugReports: https://github.com/sstoeckl/rafe/issues
 VignetteBuilder: knitr
 Config/testthat/edition: 3

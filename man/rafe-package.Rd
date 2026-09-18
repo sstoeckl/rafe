@@ -42,19 +42,13 @@ Mean-Variance Portfolios. Working paper.
 Useful links:
 \itemize{
   \item \url{https://github.com/sstoeckl/rafe}
-  \item \url{https://sstoeckl.github.io/rafe/}
+  \item \url{https://www.sebastianstoeckl.com/rafe/}
   \item Report bugs at \url{https://github.com/sstoeckl/rafe/issues}
 }
 
 }
 \author{
 \strong{Maintainer}: Sebastian Stöckl \email{sebastian.stoeckl@uni.li}
-
-Authors:
-\itemize{
-  \item Lukas Salcher
-  \item Michael Hanke
-}
 
 }
 \keyword{internal}

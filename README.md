@@ -63,9 +63,9 @@ Argument order follows the replication code of the published paper, so scripts w
 
 ## Articles
 
-- [Getting started](https://sstoeckl.github.io/rafe/articles/rafe-getting-started.html) — a short tour of the metrics and correctors.
-- [Evaluating forecasts](https://sstoeckl.github.io/rafe/articles/rafe-evaluation.html) — reproduces Table 4 of the published paper, to all three reported decimals, using only package functions. As the covariance is progressively stripped out of the error measure, its correlation with realised economic loss falls from 0.68 to 0.11. The last step in that sequence is RMSE.
-- [Post-processing forecasts](https://sstoeckl.github.io/rafe/articles/rafe-post-processing.html) — tuning $(\kappa, \tau)$, what correction does to each channel of the bound, and what it does to realised portfolios.
+- [Getting started](https://www.sebastianstoeckl.com/rafe/articles/rafe-getting-started.html) — a short tour of the metrics and correctors.
+- [Evaluating forecasts](https://www.sebastianstoeckl.com/rafe/articles/rafe-evaluation.html) — reproduces Table 4 of the published paper, to all three reported decimals, using only package functions. As the covariance is progressively stripped out of the error measure, its correlation with realised economic loss falls from 0.68 to 0.11. The last step in that sequence is RMSE.
+- [Post-processing forecasts](https://www.sebastianstoeckl.com/rafe/articles/rafe-post-processing.html) — tuning $(\kappa, \tau)$, what correction does to each channel of the bound, and what it does to realised portfolios.
 
 ## Data
 
@@ -91,4 +91,4 @@ For the moment-correction estimators:
 
 ## License
 
-MIT © Sebastian Stöckl, Lukas Salcher, Michael Hanke
+MIT © Sebastian Stöckl
