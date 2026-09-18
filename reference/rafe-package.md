@@ -60,3 +60,4 @@ Useful links:
 ## Author
 
 **Maintainer**: Sebastian Stöckl <sebastian.stoeckl@uni.li>
+([ORCID](https://orcid.org/0000-0002-4196-6093))
