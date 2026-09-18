@@ -1,0 +1,47 @@
+cff-version: 1.2.0
+message: 'To cite package "rafe" in publications use:'
+type: software
+license: MIT
+title: 'rafe: Decision-Aligned Forecast Evaluation and Moment Correction'
+version: 0.1.0
+abstract: Evaluates return forecasts by the economic damage their errors cause, rather
+  than by their size. Implements the risk-adjusted forecast error (RAFE), the operator-norm
+  covariance forecast error (C-RAFE), and their combination into an upper bound on
+  the Sharpe-ratio gap of a plug-in mean-variance portfolio (T-RAFE), together with
+  moment-correction estimators acting on the two channels of that bound.
+authors:
+- family-names: Stoeckl
+  given-names: Sebastian
+  email: sebastian.stoeckl@uni.li
+  orcid: https://orcid.org/0000-0002-4196-6093
+repository-code: https://github.com/sstoeckl/rafe
+url: https://www.sebastianstoeckl.com/rafe/
+keywords:
+- forecast-evaluation
+- portfolio-optimization
+- sharpe-ratio
+- shrinkage
+- r
+contact:
+- family-names: Stoeckl
+  given-names: Sebastian
+  email: sebastian.stoeckl@uni.li
+  orcid: https://orcid.org/0000-0002-4196-6093
+preferred-citation:
+  type: article
+  title: Lost in Translation? Risk-Adjusting RMSE for Economic Forecast Performance
+  authors:
+  - family-names: Salcher
+    given-names: Lukas
+  - family-names: Stoeckl
+    given-names: Sebastian
+    orcid: https://orcid.org/0000-0002-4196-6093
+  - family-names: Hanke
+    given-names: Michael
+  journal: Journal of Forecasting
+  year: '2026'
+  volume: '45'
+  issue: '5'
+  start: 2587
+  end: 2605
+  doi: 10.1002/for.70134

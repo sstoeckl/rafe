@@ -48,7 +48,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Sebastian Stöckl \email{sebastian.stoeckl@uni.li}
+\strong{Maintainer}: Sebastian Stöckl \email{sebastian.stoeckl@uni.li} (\href{https://orcid.org/0000-0002-4196-6093}{ORCID})
 
 }
 \keyword{internal}

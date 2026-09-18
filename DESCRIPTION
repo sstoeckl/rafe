@@ -4,7 +4,8 @@ Title: Decision-Aligned Forecast Evaluation and Moment Correction
 Version: 0.1.0
 Authors@R:
     person("Sebastian", "Stöckl", email = "sebastian.stoeckl@uni.li",
-           role = c("aut", "cre"))
+           role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-4196-6093"))
 Description: Evaluates return forecasts by the economic damage their errors
     cause, rather than by their size. Implements the risk-adjusted forecast
     error (RAFE), the operator-norm covariance forecast error (C-RAFE), and
